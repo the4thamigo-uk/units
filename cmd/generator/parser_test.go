@@ -1,0 +1,41 @@
+package main
+
+import (
+	"github.com/stretchr/testify/require"
+	"testing"
+)
+
+const testCfg = `
+package test;
+unit (
+  scalarUnit = "";
+  timeUnit = "s";
+  lengthUnit = "m";
+  speedUnit = lengthUnit / timeUnit;
+  frequencyUnit = scalarUnit / timeUnit;
+)
+
+quantity (
+  Scalar(scalarUnit);
+  Length(lengthUnit);
+  Time(timeUnit);
+  Speed(speedUnit);
+	Frequency(frequencyUnit);
+)
+
+operation (
+  Length = Length * Scalar;
+  Time = Time * Scalar;
+  Speed = Length / Time;
+  Length = Speed * Time;
+  Frequency = Scalar / Time;
+)
+`
+
+func TestParser(t *testing.T) {
+	f, err := parse(testCfg)
+	require.NoError(t, err)
+	require.NotNil(t, f)
+	t.Log(f.Quantities)
+	require.Len(t, f.Quantities[1].OperationDefinitions, 2)
+}

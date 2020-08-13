@@ -1,0 +1,27 @@
+package example;
+unit (
+  scalarUnit = "";
+  timeUnit = "s";
+  lengthUnit = "m";
+  speedUnit = lengthUnit / timeUnit;
+  frequencyUnit = scalarUnit / timeUnit;
+  areaUnit = lengthUnit * lengthUnit;
+)
+
+quantity (
+  Scalar(scalarUnit);
+  Length(lengthUnit);
+  Time(timeUnit);
+  Speed(speedUnit);
+  Frequency(frequencyUnit);
+  Area(areaUnit);
+)
+
+operation (
+  Area = Length * Length;
+  Length = Length * Scalar;
+  Time = Time * Scalar;
+  Speed = Length / Time;
+  Length = Speed * Time;
+  Frequency = Scalar / Time;
+)
