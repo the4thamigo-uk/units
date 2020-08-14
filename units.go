@@ -22,11 +22,15 @@ func Scalar() Unit {
 }
 
 func NewUnit(name string) Unit {
-	if name == "" {
+	return newUnit(name, 1)
+}
+
+func newUnit(name string, dim int) Unit {
+	if name == "" || dim == 0 {
 		return unit{}
 	}
 	return unit{
-		name: 1,
+		name: dim,
 	}
 }
 
