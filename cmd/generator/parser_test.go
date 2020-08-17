@@ -6,13 +6,14 @@ import (
 )
 
 const testCfg = `
-package test;
+package example;
 unit (
   scalarUnit = "";
   timeUnit = "s";
   lengthUnit = "m";
-  speedUnit = lengthUnit / timeUnit;
-  frequencyUnit = scalarUnit / timeUnit;
+  speedUnit = "m * s^-1";
+  frequencyUnit = "s^-1";
+  areaUnit = "m^2";
 )
 
 quantity (
@@ -20,10 +21,12 @@ quantity (
   Length(lengthUnit);
   Time(timeUnit);
   Speed(speedUnit);
-	Frequency(frequencyUnit);
+  Frequency(frequencyUnit);
+  Area(areaUnit);
 )
 
 operation (
+  Area = Length * Length;
   Length = Length * Scalar;
   Time = Time * Scalar;
   Speed = Length / Time;
@@ -37,5 +40,10 @@ func TestParser(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, f)
 	t.Log(f.Quantities)
-	require.Len(t, f.Quantities[1].OperationDefinitions, 2)
+	require.Len(t, f.Quantities[0].OperationDefinitions, 1)
+	require.Len(t, f.Quantities[1].OperationDefinitions, 3)
+	require.Len(t, f.Quantities[2].OperationDefinitions, 1)
+	require.Len(t, f.Quantities[3].OperationDefinitions, 1)
+	require.Len(t, f.Quantities[4].OperationDefinitions, 0)
+	require.Len(t, f.Quantities[5].OperationDefinitions, 0)
 }

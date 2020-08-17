@@ -69,3 +69,10 @@ func Parse(s string) (Unit, error) {
 
 	return rootExpr.toUnit(), nil
 }
+
+func Must(u Unit, err error) Unit {
+	if err != nil {
+		panic(err.Error())
+	}
+	return u
+}

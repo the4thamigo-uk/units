@@ -99,3 +99,10 @@ func TestUnit_MultipliedUnitsCancel(t *testing.T) {
 	require.Equal(t, u2, u.Divide(u1))
 	require.Equal(t, Scalar(), u.Divide(u1).Divide(u2))
 }
+
+func TestUnit_Unmarshal(t *testing.T) {
+	u := Scalar()
+	err := u.UnmarshalText([]byte("u"))
+	require.NoError(t, err)
+	require.Equal(t, NewUnit("u"), u)
+}

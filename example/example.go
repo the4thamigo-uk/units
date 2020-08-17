@@ -9,9 +9,9 @@ var (
 	scalarUnit    = units.NewUnit("")
 	timeUnit      = units.NewUnit("s")
 	lengthUnit    = units.NewUnit("m")
-	speedUnit     = lengthUnit.Divide(timeUnit)
-	frequencyUnit = scalarUnit.Divide(timeUnit)
-	areaUnit      = lengthUnit.Multiply(lengthUnit)
+	speedUnit     = units.NewUnit("m * s^-1")
+	frequencyUnit = units.NewUnit("s^-1")
+	areaUnit      = units.NewUnit("m^2")
 )
 
 // quantities

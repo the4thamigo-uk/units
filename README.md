@@ -6,6 +6,12 @@ This is a PoC for a code generation tool that builds code that enforces correct 
 
 ## Getting Started
 
+To build the example configuration file :
+
+```
+go build ./cmd/generator && ./generator -c ./example/example.units -o ./example/example.go
+```
+
 The tool works from a [configuration file](./example/example.units) that is divided into three parts :
 
 The `unit` section defines the base units for the calculations and any units that can be derived from the base units by multiplication or division.

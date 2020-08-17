@@ -15,9 +15,8 @@ import (
 
 // units
 var (
-	{{range .Units}}{{if .Text}}{{.Name}} = units.NewUnit("{{.Text}}");
-	{{else}}{{.Name}} = {{.Expression.AsCode}};
-	{{end}}{{end}}
+	{{range .Units}}{{.Name}} = units.NewUnit("{{.Expression.Text}}");
+	{{end}}
 )
 
 // quantities

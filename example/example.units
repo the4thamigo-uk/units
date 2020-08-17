@@ -3,9 +3,9 @@ unit (
   scalarUnit = "";
   timeUnit = "s";
   lengthUnit = "m";
-  speedUnit = lengthUnit / timeUnit;
-  frequencyUnit = scalarUnit / timeUnit;
-  areaUnit = lengthUnit * lengthUnit;
+  speedUnit = "m * s^-1";
+  frequencyUnit = "s^-1";
+  areaUnit = "m^2";
 )
 
 quantity (

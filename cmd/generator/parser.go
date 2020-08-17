@@ -22,16 +22,13 @@ type (
 	OperationDefinitions []*OperationDefinition
 
 	UnitDefinition struct {
-		Name       string         `@Ident "=" `
-		Text       *string        `(@String`
-		Expression UnitExpression `| @@) ";"`
-		Unit       units.Unit
+		Name       string          `@Ident "=" `
+		Expression *UnitExpression `@String ";"`
 	}
 
 	UnitExpression struct {
-		Left     string `@Ident`
-		Operator string `@("*" | "/")`
-		Right    string `@Ident`
+		Text string
+		Unit units.Unit
 	}
 
 	QuantityDefinition struct {
@@ -74,6 +71,18 @@ func operatorName(op string) (string, error) {
 	return "", fmt.Errorf("Operator '%s' not supported", op)
 }
 
+func (ue *UnitExpression) Capture(s []string) error {
+	u, err := units.Parse(s[0])
+	if err != nil {
+		return err
+	}
+	*ue = UnitExpression{
+		Unit: u,
+		Text: s[0],
+	}
+	return nil
+}
+
 func (f *File) findUnit(name string) (*UnitDefinition, error) {
 	ud, ok := f.units[name]
 	if !ok || ud == nil {
@@ -92,11 +101,7 @@ func (f *File) findQuantity(name string) (*QuantityDefinition, error) {
 
 func (f *File) init() error {
 	f.initMaps()
-	err := f.evalUnits()
-	if err != nil {
-		return err
-	}
-	err = f.evalQuantityUnits()
+	err := f.evalQuantityUnits()
 	if err != nil {
 		return err
 	}
@@ -122,33 +127,6 @@ func (f *File) initMaps() {
 			}
 		}
 	}
-}
-
-func (f *File) evalUnits() error {
-	for _, ud := range f.Units {
-		if ud.Text != nil {
-			ud.Unit = units.NewUnit(*ud.Text)
-			continue
-		}
-		exp := ud.Expression
-		leftUnit, err := f.findUnit(exp.Left)
-		if err != nil {
-			return fmt.Errorf("could not resolve unit expression for '%s' : %w", ud.Name, err)
-		}
-		rightUnit, err := f.findUnit(exp.Right)
-		if err != nil {
-			return fmt.Errorf("could not resolve unit expression for '%s' : %w", ud.Name, err)
-		}
-		switch exp.Operator {
-		case "*":
-			ud.Unit = leftUnit.Unit.Multiply(rightUnit.Unit)
-		case "/":
-			ud.Unit = leftUnit.Unit.Divide(rightUnit.Unit)
-		default:
-			return fmt.Errorf("Operator '%s' not supported", exp.Operator)
-		}
-	}
-	return nil
 }
 
 func (f *File) evalQuantityUnits() error {
@@ -178,9 +156,9 @@ func (f *File) evalOperationUnits() error {
 		if err != nil {
 			return err
 		}
-		leftUnit := leftQuantity.UnitDefinition.Unit
-		rightUnit := rightQuantity.UnitDefinition.Unit
-		resultUnit := resultQuantity.UnitDefinition.Unit
+		leftUnit := leftQuantity.UnitDefinition.Expression.Unit
+		rightUnit := rightQuantity.UnitDefinition.Expression.Unit
+		resultUnit := resultQuantity.UnitDefinition.Expression.Unit
 
 		exp := op.Expression
 		var u units.Unit
@@ -204,14 +182,6 @@ func (f *File) evalOperationUnits() error {
 		}
 	}
 	return nil
-}
-
-func (ue *UnitExpression) AsCode() (string, error) {
-	opName, err := operatorName(ue.Operator)
-	if err != nil {
-		return "", err
-	}
-	return fmt.Sprintf("%s.%s(%s)", ue.Left, opName, ue.Right), nil
 }
 
 func (qd *QuantityDefinition) PrivateName() string {

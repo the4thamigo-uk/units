@@ -14,6 +14,7 @@ type (
 		Invert() Unit
 		Multiply(Unit) Unit
 		Divide(Unit) Unit
+		UnmarshalText(s []byte) error
 	}
 )
 
@@ -32,6 +33,25 @@ func newUnit(name string, dim int) Unit {
 	return unit{
 		name: dim,
 	}
+}
+
+func (u unit) clear() {
+	for k := range u {
+		delete(u, k)
+	}
+}
+
+func (u unit) UnmarshalText(s []byte) error {
+	u2, err := Parse(string(s))
+	if err != nil {
+		return err
+	}
+	u.clear()
+	for k, v := range u2.(unit) {
+		u[k] = v
+	}
+
+	return nil
 }
 
 func (u unit) Equal(u2 Unit) bool {
