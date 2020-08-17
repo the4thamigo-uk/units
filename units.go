@@ -11,6 +11,7 @@ type (
 	Unit interface {
 		String() string
 		Equal(Unit) bool
+		Subs(map[string]Unit) Unit
 		Invert() Unit
 		Multiply(Unit) Unit
 		Divide(Unit) Unit
@@ -22,17 +23,37 @@ func Scalar() Unit {
 	return unit{}
 }
 
-func NewUnit(name string) Unit {
-	return newUnit(name, 1)
-}
-
-func newUnit(name string, dim int) Unit {
+func NewUnit(name string, dim int) Unit {
 	if name == "" || dim == 0 {
 		return unit{}
 	}
 	return unit{
 		name: dim,
 	}
+}
+
+func (u unit) Subs(us map[string]Unit) Unit {
+	var subs bool
+	out := unit{}
+	for k1, v1 := range u {
+		v2, ok := us[k1]
+		if !ok {
+			out[k1] += v1
+			continue
+		}
+
+		subs = true
+		for k3, v3 := range v2.(unit) {
+			out[k3] += v1 * v3
+		}
+		fmt.Printf("%v", out)
+	}
+	if subs {
+		// some substitutions were made so reprocess
+		return out.Subs(us)
+	}
+
+	return out
 }
 
 func (u unit) clear() {
