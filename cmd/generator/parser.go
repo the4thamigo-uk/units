@@ -18,6 +18,7 @@ type (
 	Quantity struct {
 		Name       string
 		Unit       units.Unit
+		BaseUnit   units.Unit
 		Operations []*Operation
 	}
 
@@ -39,6 +40,11 @@ func (q *Quantity) InterfaceName() string {
 func (q *Quantity) UnitName() string {
 	return "_unit_" + q.Name
 }
+
+func (q *Quantity) BaseUnitName() string {
+	return "_base_unit_" + q.Name
+}
+
 func (o *Operation) FunctionSpec() (string, error) {
 	op, err := operatorName(o.Operator)
 	if err != nil {
@@ -105,9 +111,9 @@ func analyse(ast *AST) (*Semantics, error) {
 		if err != nil {
 			return nil, fmt.Errorf("quantity '%s' is invalid : %w", qd.Name, err)
 		}
-		q.Unit = q.Unit.Subs(s.Units)
+		q.BaseUnit = q.Unit.Subs(s.Units)
 
-		err = q.Unit.Validate(s.Units)
+		err = q.BaseUnit.Validate(s.Units)
 		if err != nil {
 			return nil, fmt.Errorf("failed to validate unit for quantity '%s' : %w", qd.Name, err)
 		}

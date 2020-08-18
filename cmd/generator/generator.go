@@ -26,6 +26,7 @@ type (
 		{{.InterfaceName}} interface {
 			Value() float64
 			Unit() units.Unit
+			BaseUnit() units.Unit
 			{{range .Operations}}{{.FunctionSpec}}
 			{{end}}}
 	{{end}}
@@ -34,6 +35,7 @@ type (
 // quantity units
 var (
 {{range $q := .Quantities}}{{.UnitName}} = units.Must(units.Parse("{{$q.Unit.String}}"))
+{{.BaseUnitName}} = units.Must(units.Parse("{{$q.BaseUnit.String}}"))
 {{end}}
 )
 
@@ -48,6 +50,10 @@ func (q {{.ValueName}}) Value() float64 {
 
 func (q {{.ValueName}}) Unit() units.Unit {
 	return {{.UnitName}}
+}
+
+func (q {{.ValueName}}) BaseUnit() units.Unit {
+	return {{.BaseUnitName}}
 }
 
 {{range $op := .Operations}}
