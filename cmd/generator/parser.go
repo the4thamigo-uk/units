@@ -2,59 +2,49 @@ package main
 
 import (
 	"fmt"
-	"github.com/alecthomas/participle"
 	"github.com/the4thamigo-uk/units"
-	"unicode"
 )
 
 type (
-	File struct {
-		Package    string               `"package" @Ident ";"`
-		Units      UnitDefinitions      `"unit" "(" { @@ } ")"`
-		Quantities QuantityDefinitions  `"quantity" "(" { @@ } ")"`
-		Operations OperationDefinitions `"operation" "(" { @@ } ")"`
-		units      map[string]*UnitDefinition
-		quantities map[string]*QuantityDefinition
+	Semantics struct {
+		Package    string
+		Units      UnitsMap
+		Quantities QuantitiesMap
 	}
 
-	UnitDefinitions      []*UnitDefinition
-	QuantityDefinitions  []*QuantityDefinition
-	OperationDefinitions []*OperationDefinition
+	UnitsMap      map[string]units.Unit
+	QuantitiesMap map[string]*Quantity
 
-	UnitDefinition struct {
-		Name       string          `@Ident "=" `
-		Expression *UnitExpression `@String ";"`
+	Quantity struct {
+		Name       string
+		Unit       units.Unit
+		Operations []*Operation
 	}
 
-	UnitExpression struct {
-		Text string
-		Unit units.Unit
-	}
-
-	QuantityDefinition struct {
-		Name                 string `@Ident`
-		Unit                 string `"(" @Ident ")" ";"`
-		OperationDefinitions []*OperationDefinition
-		UnitDefinition       *UnitDefinition
-	}
-
-	OperationDefinition struct {
-		Result         string              `@Ident "="`
-		Expression     OperationExpression `@@ ";"`
-		UnitDefinition *UnitDefinition
-	}
-
-	OperationExpression struct {
-		Left     string `@Ident`
-		Operator string `@("*" | "/" | "+" | "-")`
-		Right    string `@Ident`
+	Operation struct {
+		Result   *Quantity
+		Operator string
+		Param    *Quantity
 	}
 )
 
-func makePrivate(name string) string {
-	rs := []rune(name)
-	rs[0] = unicode.ToLower(rs[0])
-	return "_" + string(rs)
+func (q *Quantity) ValueName() string {
+	return "_" + q.Name
+}
+
+func (q *Quantity) InterfaceName() string {
+	return q.Name
+}
+
+func (q *Quantity) UnitName() string {
+	return "_unit_" + q.Name
+}
+func (o *Operation) FunctionSpec() (string, error) {
+	op, err := operatorName(o.Operator)
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%s%s(val %s) %s", op, o.Param.Name, o.Param.Name, o.Result.Name), nil
 }
 
 func operatorName(op string) (string, error) {
@@ -71,165 +61,93 @@ func operatorName(op string) (string, error) {
 	return "", fmt.Errorf("Operator '%s' not supported", op)
 }
 
-func (ue *UnitExpression) Capture(s []string) error {
-	u, err := units.Parse(s[0])
+func evalQuantity(qd *QuantityDefinition) (*Quantity, error) {
+	u, err := qd.UnitExpression.Unit()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	*ue = UnitExpression{
+	return &Quantity{
+		Name: qd.Name,
 		Unit: u,
-		Text: s[0],
-	}
-	return nil
+	}, nil
 }
 
-func (f *File) findUnit(name string) (*UnitDefinition, error) {
-	ud, ok := f.units[name]
-	if !ok || ud == nil {
-		return nil, fmt.Errorf("failed to find unit '%s'", name)
+func analyse(ast *AST) (*Semantics, error) {
+	s := Semantics{
+		Package:    ast.Package,
+		Units:      UnitsMap{},
+		Quantities: QuantitiesMap{},
 	}
-	return ud, nil
-}
-
-func (f *File) findQuantity(name string) (*QuantityDefinition, error) {
-	qd, ok := f.quantities[name]
-	if !ok || qd == nil {
-		return nil, fmt.Errorf("failed to find quantity '%s'", name)
-	}
-	return qd, nil
-}
-
-func (f *File) init() error {
-	f.initMaps()
-	err := f.evalQuantityUnits()
-	if err != nil {
-		return err
-	}
-	err = f.evalOperationUnits()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (f *File) initMaps() {
-	f.units = map[string]*UnitDefinition{}
-	for _, ud := range f.Units {
-		f.units[ud.Name] = ud
-	}
-
-	f.quantities = map[string]*QuantityDefinition{}
-	for _, qd := range f.Quantities {
-		f.quantities[qd.Name] = qd
-		for _, od := range f.Operations {
-			if od.Expression.Left == qd.Name {
-				qd.OperationDefinitions = append(qd.OperationDefinitions, od)
-			}
+	for _, bu := range ast.BaseUnits {
+		if _, ok := s.Units[bu.Name]; ok {
+			return nil, fmt.Errorf("unit '%s' is defined more than once", bu.Name)
 		}
-	}
-}
+		s.Units[bu.Name] = units.NewUnit(bu.Literal, 1)
 
-func (f *File) evalQuantityUnits() error {
-	for _, qd := range f.quantities {
-		ud, err := f.findUnit(qd.Unit)
+	for _, du := range ast.DerivedUnits {
+		if _, ok := s.Units[du.Name]; ok {
+			return nil, fmt.Errorf("unit '%s' is defined more than once", du.Name)
+		}
+		u, err := du.Expression.Unit()
 		if err != nil {
-			return err
+			return nil, err
 		}
-		qd.UnitDefinition = ud
+		err = u.Validate(s.Units)
+		if err != nil {
+			return nil, fmt.Errorf("failed to validate unit '%s' : %w", du.Name, err)
+		}
+		s.Units[du.Name] = u.Subs(s.Units)
 	}
-	return nil
-}
 
-func (f *File) evalOperationUnits() error {
-	// match up operations with the quantity definitions
-	for _, op := range f.Operations {
-		// verify that the units are correct for each operation
-		leftQuantity, err := f.findQuantity(op.Expression.Left)
+	for _, qd := range ast.Quantities {
+		q, err := evalQuantity(qd)
 		if err != nil {
-			return err
+			return nil, fmt.Errorf("quantity '%s' is invalid : %w", qd.Name, err)
 		}
-		rightQuantity, err := f.findQuantity(op.Expression.Right)
+		q.Unit = q.Unit.Subs(s.Units)
+		err = q.Unit.Validate(s.Units)
 		if err != nil {
-			return err
+			return nil, fmt.Errorf("failed to validate unit for quantity '%s' : %w", qd.Name, err)
 		}
-		resultQuantity, err := f.findQuantity(op.Result)
-		if err != nil {
-			return err
-		}
-		leftUnit := leftQuantity.UnitDefinition.Expression.Unit
-		rightUnit := rightQuantity.UnitDefinition.Expression.Unit
-		resultUnit := resultQuantity.UnitDefinition.Expression.Unit
+		s.Quantities[qd.Name] = q
+	}
 
-		exp := op.Expression
+	for _, od := range ast.Operations {
+		left, ok := s.Quantities[od.Left]
+		if !ok {
+			return nil, fmt.Errorf("the left quantity '%s' is not defined for the operation", od.Left)
+		}
+		right, ok := s.Quantities[od.Right]
+		if !ok {
+			return nil, fmt.Errorf("the right quantity '%s' is not defined for the operation", od.Right)
+		}
+		result, ok := s.Quantities[od.Result]
+		if !ok {
+			return nil, fmt.Errorf("the result quantity '%s' is not defined for the operation", od.Result)
+		}
 		var u units.Unit
-		switch exp.Operator {
+		switch od.Operator {
 		case "*":
-			u = leftUnit.Multiply(rightUnit)
+			u = left.Unit.Multiply(right.Unit)
 		case "/":
-			u = leftUnit.Divide(rightUnit)
+			u = left.Unit.Divide(right.Unit)
 		case "+":
 			fallthrough
 		case "-":
-			if leftUnit != rightUnit {
-				return fmt.Errorf("operands must have same unit for operator '%s', left is '%s' and right is '%s'", exp.Operator, leftUnit, rightUnit)
+			if !left.Unit.Equal(right.Unit) {
+				return nil, fmt.Errorf("operations with '+' or '-' must have operands with the same unit, but %s=%s, and %s=%s", left.Name, left.Unit, right.Name, right.Unit)
 			}
-			u = leftUnit
-		default:
-			return fmt.Errorf("Operator '%s' not supported", exp.Operator)
+			u = left.Unit
 		}
-		if !u.Equal(resultUnit) {
-			return fmt.Errorf("declared unit of operation does not match implied unit of operands, result is '%s', left is '%s' and right is '%s'", resultUnit, leftUnit, rightUnit)
+		if !u.Equal(result.Unit) {
+			return nil, fmt.Errorf("the unit generated by the operation '%s' does not match the unit '%s' of the resulting quantity", u, result.Unit)
 		}
+
+		left.Operations = append(left.Operations, &Operation{
+			Result:   result,
+			Operator: od.Operator,
+			Param:    right,
+		})
 	}
-	return nil
-}
-
-func (qd *QuantityDefinition) PrivateName() string {
-	return makePrivate(qd.Name)
-}
-
-func (qd *QuantityDefinition) PublicName() string {
-	return qd.Name
-}
-
-func (od *OperationDefinition) FunctionSpec() (string, error) {
-	opName, err := operatorName(od.Expression.Operator)
-	if err != nil {
-		return "", err
-	}
-	return fmt.Sprintf("%s%s(val %s) %s", opName, od.Expression.Right, od.Expression.Right, od.Result), nil
-}
-
-func (oe *OperationExpression) OperatorName() (string, error) {
-	switch oe.Operator {
-	case "+":
-		return "Add", nil
-	case "-":
-		return "Subtract", nil
-	case "*":
-		return "Multiply", nil
-	case "/":
-		return "Divide", nil
-	}
-	return "", fmt.Errorf("Operator '%s' not supported", oe.Operator)
-}
-
-func parse(cfg string) (*File, error) {
-	parser, err := participle.Build(&File{})
-	if err != nil {
-		return nil, err
-	}
-
-	var f File
-	err = parser.ParseString(cfg, &f)
-	if err != nil {
-		return nil, err
-	}
-
-	err = f.init()
-	if err != nil {
-		return nil, err
-	}
-
-	return &f, nil
+	return &s, nil
 }

@@ -5,6 +5,36 @@ import (
 	"testing"
 )
 
+func TestUnit_String_Scalar(t *testing.T) {
+	require.Equal(t, "", Scalar().String())
+}
+
+func TestUnit_String_OneTerm(t *testing.T) {
+	require.Equal(t, "u", NewUnit("u", 1).String())
+}
+
+func TestUnit_String_Square(t *testing.T) {
+	require.Equal(t, "u^2", NewUnit("u", 2).String())
+}
+
+func TestUnit_String_InverseSquare(t *testing.T) {
+	require.Equal(t, "u^-2", NewUnit("u", -2).String())
+}
+
+func TestUnit_String_TwoTerms(t *testing.T) {
+	ue := NewUnit("u1", -2).Multiply(NewUnit("u2", 2))
+	u, err := Parse(ue.String())
+	require.NoError(t, err)
+	require.Equal(t, ue, u)
+}
+
+func TestUnit_String_Three(t *testing.T) {
+	ue := NewUnit("u1", -1).Multiply(NewUnit("u2", 2)).Multiply(NewUnit("u3", 3))
+	u, err := Parse(ue.String())
+	require.NoError(t, err)
+	require.Equal(t, ue, u)
+}
+
 func TestUnit_ScalarInvert(t *testing.T) {
 	s := Scalar()
 	require.Equal(t, Scalar(), s.Invert())
@@ -22,14 +52,14 @@ func TestUnit_ScalarDivide(t *testing.T) {
 
 func TestUnit_Invert(t *testing.T) {
 	u := NewUnit("u", 1)
-	require.NotEqual(t, Scalar(), u)
-	require.NotEqual(t, u, u.Invert())
+	require.Equal(t, NewUnit("u", -1), u.Invert())
 	require.Equal(t, u, u.Invert().Invert())
 }
 
 func TestUnit_MultiplyByInverse(t *testing.T) {
 	u := NewUnit("u", 1)
-	require.NotEqual(t, u, u.Multiply(u.Invert()))
+	ui := u.Invert()
+	require.Equal(t, Scalar(), u.Multiply(ui))
 }
 
 func TestUnit_MultiplyByScalarGivesSelf(t *testing.T) {
@@ -77,7 +107,8 @@ func TestUnit_MultiplyCommutativity(t *testing.T) {
 func TestUnit_MultiplySquaring(t *testing.T) {
 	u := NewUnit("u", 1)
 	u2 := NewUnit("u", 2)
-	require.NotEqual(t, u, u2)
+	require.Equal(t, "u", u.String())
+	require.Equal(t, "u^2", u2.String())
 	require.Equal(t, u, u2.Divide(u))
 }
 
@@ -85,7 +116,9 @@ func TestUnit_DivideSquaring(t *testing.T) {
 	u := NewUnit("u", 1)
 	u1 := NewUnit("u", -1)
 	u2 := u1.Divide(u)
-	require.NotEqual(t, u1, u2)
+	require.Equal(t, "u", u.String())
+	require.Equal(t, "u^-1", u1.String())
+	require.Equal(t, "u^-2", u2.String())
 	require.Equal(t, u1, u2.Multiply(u))
 }
 
@@ -93,18 +126,11 @@ func TestUnit_MultipliedUnitsCancel(t *testing.T) {
 	u1 := NewUnit("u1", 1)
 	u2 := NewUnit("u2", 1)
 	u := u1.Multiply(u2)
-	require.NotEqual(t, u, u1)
-	require.NotEqual(t, u, u2)
+	require.Equal(t, "u1", u1.String())
+	require.Equal(t, "u2", u2.String())
 	require.Equal(t, u1, u.Divide(u2))
 	require.Equal(t, u2, u.Divide(u1))
 	require.Equal(t, Scalar(), u.Divide(u1).Divide(u2))
-}
-
-func TestUnit_Unmarshal(t *testing.T) {
-	u := Scalar()
-	err := u.UnmarshalText([]byte("u"))
-	require.NoError(t, err)
-	require.Equal(t, NewUnit("u", 1), u)
 }
 
 func TestUnit_Substitute(t *testing.T) {

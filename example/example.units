@@ -1,20 +1,20 @@
 package example;
-unit (
-  scalarUnit = "";
-  timeUnit = "s";
-  lengthUnit = "m";
-  speedUnit = "m * s^-1";
-  frequencyUnit = "s^-1";
-  areaUnit = "m^2";
+base (
+	m = "m";
+	s = "s";
+)
+
+derived (
+	mps = m / s;
 )
 
 quantity (
-  Scalar(scalarUnit);
-  Length(lengthUnit);
-  Time(timeUnit);
-  Speed(speedUnit);
-  Frequency(frequencyUnit);
-  Area(areaUnit);
+  Scalar();
+  Length(m);
+  Time(s);
+  Speed(mps);
+  Frequency(s^-1);
+  Area(m * m);
 )
 
 operation (

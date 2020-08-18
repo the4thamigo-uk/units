@@ -1,73 +1,44 @@
 package units
 
 import (
+	"fmt"
 	"github.com/alecthomas/participle"
 )
 
 type (
-	RootExpr struct {
-		Expr *Expr `@@?`
-	}
-
-	Expr struct {
-		Left     Term   `@@`
-		Operator string `( @("*")`
-		Right    *Expr  `@@)?`
+	Expression struct {
+		Lhs      Term        `@@`
+		Operator *string     `( @( "*" | "/")`
+		Rhs      *Expression `@@)?`
 	}
 
 	Term struct {
-		Unit     string `@Ident`
-		Sign     string `( "^" @("-" | "+")?`
-		Exponent *int   `@Int )?`
+		Name     string `@Ident`
+		Sign     string `("^" @("+" | "-")?`
+		Exponent *int   `@Int)?`
 	}
 )
 
-func (re *RootExpr) toUnit() Unit {
-	if re.Expr == nil {
-		return Scalar()
-	}
-
-	return re.Expr.toUnit()
-}
-
-func (e *Expr) toUnit() Unit {
-	u := e.Left.toUnit()
-	switch e.Operator {
-	case "":
-		return u
-	case "*":
-		return u.Multiply(e.Right.toUnit())
-	}
-	panic("operator is not valid")
-}
-
-func (t *Term) toUnit() Unit {
-	if t.Unit == "" {
-		return Scalar()
-	}
-	exp := 1
-	if t.Exponent != nil {
-		exp = *t.Exponent
-	}
-	if t.Sign == "-" {
-		exp *= -1
-	}
-	return unit{t.Unit: exp}
-}
-
 func Parse(s string) (Unit, error) {
-	parser, err := participle.Build(&RootExpr{})
+	type Root struct {
+		Expr *Expression `@@?`
+	}
+
+	parser, err := participle.Build(&Root{})
 	if err != nil {
 		return nil, err
 	}
 
-	var rootExpr RootExpr
-	err = parser.ParseString(s, &rootExpr)
+	var root Root
+	err = parser.ParseString(s, &root)
 	if err != nil {
 		return nil, err
 	}
 
-	return rootExpr.toUnit(), nil
+	if root.Expr == nil {
+		return Scalar(), nil
+	}
+	return root.Expr.Unit()
 }
 
 func Must(u Unit, err error) Unit {
@@ -75,4 +46,43 @@ func Must(u Unit, err error) Unit {
 		panic(err.Error())
 	}
 	return u
+}
+
+func (exp Expression) Unit() (Unit, error) {
+	lhs := exp.Lhs.Unit()
+
+	if exp.Operator == nil {
+		return lhs, nil
+	}
+
+	rhs := exp.Rhs.Lhs.Unit()
+
+	switch *exp.Operator {
+	case "*":
+		lhs = lhs.Multiply(rhs)
+	case "/":
+		lhs = lhs.Divide(rhs)
+	default:
+		return nil, fmt.Errorf("unit expression operator '%s' not supported", *exp.Operator)
+	}
+	rhs, err := Expression{
+		Lhs:      Term{},
+		Operator: exp.Rhs.Operator,
+		Rhs:      exp.Rhs.Rhs,
+	}.Unit()
+	if err != nil {
+		return nil, err
+	}
+	return lhs.Multiply(rhs), nil
+}
+
+func (t Term) Unit() Unit {
+	exp := 1
+	if t.Exponent != nil {
+		exp = *t.Exponent
+	}
+	if t.Sign == "-" {
+		exp = -exp
+	}
+	return NewUnit(t.Name, exp)
 }

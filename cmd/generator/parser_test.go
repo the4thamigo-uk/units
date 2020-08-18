@@ -5,24 +5,23 @@ import (
 	"testing"
 )
 
-const testCfg = `
-package example;
-unit (
-  scalarUnit = "";
-  timeUnit = "s";
-  lengthUnit = "m";
-  speedUnit = "m * s^-1";
-  frequencyUnit = "s^-1";
-  areaUnit = "m^2";
+const testCfg = `package example;
+base (
+	m = "m";
+	s = "s";
+)
+
+derived (
+	mps = m / s;
 )
 
 quantity (
-  Scalar(scalarUnit);
-  Length(lengthUnit);
-  Time(timeUnit);
-  Speed(speedUnit);
-  Frequency(frequencyUnit);
-  Area(areaUnit);
+  Scalar();
+  Length(m);
+  Area(m * m);
+  Time(s);
+  Speed(mps);
+	Frequency(s^-1);
 )
 
 operation (
@@ -32,18 +31,20 @@ operation (
   Speed = Length / Time;
   Length = Speed * Time;
   Frequency = Scalar / Time;
-)
-`
+)`
 
 func TestParser(t *testing.T) {
 	f, err := parse(testCfg)
 	require.NoError(t, err)
 	require.NotNil(t, f)
-	t.Log(f.Quantities)
-	require.Len(t, f.Quantities[0].OperationDefinitions, 1)
-	require.Len(t, f.Quantities[1].OperationDefinitions, 3)
-	require.Len(t, f.Quantities[2].OperationDefinitions, 1)
-	require.Len(t, f.Quantities[3].OperationDefinitions, 1)
-	require.Len(t, f.Quantities[4].OperationDefinitions, 0)
-	require.Len(t, f.Quantities[5].OperationDefinitions, 0)
+
+	s, err := analyse(f)
+	require.NoError(t, err)
+
+	require.Len(t, s.Quantities["Scalar"].Operations, 1)
+	require.Len(t, s.Quantities["Length"].Operations, 3)
+	require.Len(t, s.Quantities["Time"].Operations, 1)
+	require.Len(t, s.Quantities["Speed"].Operations, 1)
+	require.Len(t, s.Quantities["Length"].Operations, 3)
+	require.Len(t, s.Quantities["Frequency"].Operations, 0)
 }

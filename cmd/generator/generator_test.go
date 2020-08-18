@@ -7,11 +7,12 @@ import (
 
 func TestGenerator(t *testing.T) {
 
-	f, err := parse(testCfg)
+	ast, err := parse(testCfg)
 	require.NoError(t, err)
 
-	out, err := generate(f)
+	s, err := analyse(ast)
 	require.NoError(t, err)
-	t.Log(f.Units)
-	t.Log(out)
+
+	_, err = generate(s)
+	require.NoError(t, err)
 }

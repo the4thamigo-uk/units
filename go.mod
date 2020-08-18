@@ -5,7 +5,9 @@ go 1.14
 require (
 	9fans.net/go v0.0.2 // indirect
 	github.com/alecthomas/gometalinter v3.0.0+incompatible // indirect
+	github.com/alecthomas/kong v0.2.11 // indirect
 	github.com/alecthomas/participle v0.5.0
+	github.com/alecthomas/repr v0.0.0-20181024024818-d37bc2a10ba1 // indirect
 	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d // indirect
 	github.com/davidrjenni/reftools v0.0.0-20191222082827-65925cf01315 // indirect
 	github.com/fatih/gomodifytags v1.6.0 // indirect
@@ -20,6 +22,7 @@ require (
 	github.com/koron/iferr v0.0.0-20180615142939-bb332a3b1d91 // indirect
 	github.com/mdempsky/gocode v0.0.0-20200405233807-4acdcbdea79d // indirect
 	github.com/nicksnyder/go-i18n v1.10.1 // indirect
+	github.com/openlyinc/pointy v1.1.2
 	github.com/pelletier/go-toml v1.8.0 // indirect
 	github.com/rogpeppe/godef v1.1.2 // indirect
 	github.com/spf13/pflag v1.0.5

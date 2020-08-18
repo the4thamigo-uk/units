@@ -29,14 +29,17 @@ func run() error {
 		panic(cfgFile)
 		return err
 	}
-	f, err := parse(string(cfg))
+	ast, err := parse(string(cfg))
 	if err != nil {
 		return err
 	}
-	code, err := generate(f)
+	s, err := analyse(ast)
 	if err != nil {
 		return err
 	}
-	ioutil.WriteFile(outFile, []byte(code), 0644)
-	return nil
+	code, err := generate(s)
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile(outFile, []byte(code), 0644)
 }

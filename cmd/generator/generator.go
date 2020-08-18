@@ -15,47 +15,52 @@ import (
 
 // units
 var (
-	{{range .Units}}{{.Name}} = units.NewUnit("{{.Expression.Text}}");
+	{{range $n, $u := .Units}}{{$n}} = units.Must(units.Parse("{{$u.String}}"))
 	{{end}}
 )
 
 // quantities
 type (
 	{{range .Quantities}}
-		{{.PrivateName}} float64
-		{{.PublicName}} interface {
+		{{.ValueName}} float64
+		{{.InterfaceName}} interface {
 			Value() float64
 			Unit() units.Unit
-			{{range .OperationDefinitions}}{{.FunctionSpec}}
-			{{end}}
-		}
+			{{range .Operations}}{{.FunctionSpec}}
+			{{end}}}
 	{{end}}
 )
 
+// quantity units
+var (
+{{range $q := .Quantities}}{{.UnitName}} = units.Must(units.Parse("{{$q.Unit.String}}"))
+{{end}}
+)
+
 {{range $q := .Quantities}}
-func New{{.PublicName}}(val float64) {{.PublicName}} {
-	return {{.PrivateName}}(val)
+func New{{.InterfaceName}}(val float64) {{.InterfaceName}} {
+	return {{.ValueName}}(val)
 }
 
-func (q {{.PrivateName}}) Value() float64 {
+func (q {{.ValueName}}) Value() float64 {
 	return float64(q)
 }
 
-func (q {{.PrivateName}}) Unit() units.Unit {
-	return {{.Unit}}
+func (q {{.ValueName}}) Unit() units.Unit {
+	return {{.UnitName}}
 }
 
-{{range $op := .OperationDefinitions}}
-func (q {{$q.PrivateName}}) {{$op.FunctionSpec}} {
-	return New{{$op.Result}}(q.Value() {{$op.Expression.Operator}} val.Value())
+{{range $op := .Operations}}
+func (q {{$q.ValueName}}) {{$op.FunctionSpec}} {
+	return New{{$op.Result.Name}}(q.Value() {{$op.Operator}} val.Value())
 }
 {{end}}
 {{end}}
 `))
 
-func generate(f *File) (string, error) {
+func generate(s *Semantics) (string, error) {
 	var b bytes.Buffer
-	err := tmpl.Execute(&b, f)
+	err := tmpl.Execute(&b, s)
 	if err != nil {
 		return "", err
 	}

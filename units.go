@@ -3,6 +3,8 @@ package units
 import (
 	"fmt"
 	"reflect"
+	"sort"
+	"strings"
 )
 
 type (
@@ -12,10 +14,10 @@ type (
 		String() string
 		Equal(Unit) bool
 		Subs(map[string]Unit) Unit
+		Validate(map[string]Unit) error
 		Invert() Unit
 		Multiply(Unit) Unit
 		Divide(Unit) Unit
-		UnmarshalText(s []byte) error
 	}
 )
 
@@ -33,7 +35,6 @@ func NewUnit(name string, dim int) Unit {
 }
 
 func (u unit) Subs(us map[string]Unit) Unit {
-	var subs bool
 	out := unit{}
 	for k1, v1 := range u {
 		v2, ok := us[k1]
@@ -42,18 +43,26 @@ func (u unit) Subs(us map[string]Unit) Unit {
 			continue
 		}
 
-		subs = true
 		for k3, v3 := range v2.(unit) {
 			out[k3] += v1 * v3
 		}
-		fmt.Printf("%v", out)
 	}
-	if subs {
+	if !u.Equal(out) {
 		// some substitutions were made so reprocess
 		return out.Subs(us)
 	}
 
 	return out
+}
+
+func (u unit) Validate(us map[string]Unit) error {
+	for k1 := range u {
+		_, ok := us[k1]
+		if !ok {
+			return fmt.Errorf("the unit '%s' is not defined", k1)
+		}
+	}
+	return nil
 }
 
 func (u unit) clear() {
@@ -62,26 +71,21 @@ func (u unit) clear() {
 	}
 }
 
-func (u unit) UnmarshalText(s []byte) error {
-	u2, err := Parse(string(s))
-	if err != nil {
-		return err
-	}
-	u.clear()
-	for k, v := range u2.(unit) {
-		u[k] = v
-	}
-
-	return nil
-}
-
 func (u unit) Equal(u2 Unit) bool {
 	return reflect.DeepEqual(u, u2)
 }
 
 func (u unit) String() string {
-	// todo: format this better
-	return fmt.Sprintf("%v", map[string]int(u))
+	var ss []string
+	for k, v := range u {
+		if v == 1 {
+			ss = append(ss, k)
+			continue
+		}
+		ss = append(ss, fmt.Sprintf("%s^%d", k, v))
+	}
+	sort.Strings(ss)
+	return strings.Join(ss, "*")
 }
 
 func (u unit) Invert() Unit {
