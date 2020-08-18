@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/alecthomas/participle"
 	"github.com/the4thamigo-uk/units"
 )
 
@@ -16,7 +15,7 @@ type (
 
 	BaseUnitDefinition struct {
 		Name    string `@Ident "="`
-		Literal string `@String`
+		Literal string `"\"" @Ident "\""`
 	}
 
 	DerivedUnitDefinition struct {
@@ -38,13 +37,8 @@ type (
 )
 
 func parse(s string) (*AST, error) {
-	parser, err := participle.Build(&AST{})
-	if err != nil {
-		return nil, err
-	}
-
 	var ast AST
-	err = parser.ParseString(s, &ast)
+	err := units.ParseInto(&ast, s)
 	if err != nil {
 		return nil, err
 	}

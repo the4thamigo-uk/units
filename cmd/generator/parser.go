@@ -83,6 +83,7 @@ func analyse(ast *AST) (*Semantics, error) {
 			return nil, fmt.Errorf("unit '%s' is defined more than once", bu.Name)
 		}
 		s.Units[bu.Name] = units.NewUnit(bu.Literal, 1)
+	}
 
 	for _, du := range ast.DerivedUnits {
 		if _, ok := s.Units[du.Name]; ok {
@@ -105,6 +106,7 @@ func analyse(ast *AST) (*Semantics, error) {
 			return nil, fmt.Errorf("quantity '%s' is invalid : %w", qd.Name, err)
 		}
 		q.Unit = q.Unit.Subs(s.Units)
+
 		err = q.Unit.Validate(s.Units)
 		if err != nil {
 			return nil, fmt.Errorf("failed to validate unit for quantity '%s' : %w", qd.Name, err)

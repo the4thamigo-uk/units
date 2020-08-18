@@ -12,7 +12,8 @@ base (
 )
 
 derived (
-	mps = m / s;
+	h = s * 3600;
+	km = 1000 * m;
 )
 
 quantity (
@@ -20,16 +21,18 @@ quantity (
   Length(m);
   Area(m * m);
   Time(s);
-  Speed(mps);
 	Frequency(s^-1);
+	Distance(km);
+	Duration(h);
+  Speed(km / h);
 )
 
 operation (
   Area = Length * Length;
   Length = Length * Scalar;
   Time = Time * Scalar;
-  Speed = Length / Time;
-  Length = Speed * Time;
+  Speed = Distance / Duration;
+  Distance = Speed * Duration;
   Frequency = Scalar / Time;
 )`
 
@@ -42,9 +45,11 @@ func TestParser(t *testing.T) {
 	require.NoError(t, err)
 
 	require.Len(t, s.Quantities["Scalar"].Operations, 1)
-	require.Len(t, s.Quantities["Length"].Operations, 3)
+	require.Len(t, s.Quantities["Length"].Operations, 2)
+	require.Len(t, s.Quantities["Area"].Operations, 0)
 	require.Len(t, s.Quantities["Time"].Operations, 1)
-	require.Len(t, s.Quantities["Speed"].Operations, 1)
-	require.Len(t, s.Quantities["Length"].Operations, 3)
 	require.Len(t, s.Quantities["Frequency"].Operations, 0)
+	require.Len(t, s.Quantities["Distance"].Operations, 1)
+	require.Len(t, s.Quantities["Duration"].Operations, 0)
+	require.Len(t, s.Quantities["Speed"].Operations, 1)
 }

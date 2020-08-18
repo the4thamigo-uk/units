@@ -6,15 +6,29 @@ import (
 
 // units
 var (
-	m   = units.Must(units.Parse("m"))
-	mps = units.Must(units.Parse("m*s^-1"))
-	s   = units.Must(units.Parse("s"))
+	h  = units.Must(units.Parse("3.600000e+03*s"))
+	km = units.Must(units.Parse("1.000000e+03*m"))
+	m  = units.Must(units.Parse("m"))
+	s  = units.Must(units.Parse("s"))
 )
 
 // quantities
 type (
 	_Area float64
 	Area  interface {
+		Value() float64
+		Unit() units.Unit
+	}
+
+	_Distance float64
+	Distance  interface {
+		Value() float64
+		Unit() units.Unit
+		DivideDuration(val Duration) Speed
+	}
+
+	_Duration float64
+	Duration  interface {
 		Value() float64
 		Unit() units.Unit
 	}
@@ -31,7 +45,6 @@ type (
 		Unit() units.Unit
 		MultiplyLength(val Length) Area
 		MultiplyScalar(val Scalar) Length
-		DivideTime(val Time) Speed
 	}
 
 	_Scalar float64
@@ -45,7 +58,7 @@ type (
 	Speed  interface {
 		Value() float64
 		Unit() units.Unit
-		MultiplyTime(val Time) Length
+		MultiplyDuration(val Duration) Distance
 	}
 
 	_Time float64
@@ -59,10 +72,12 @@ type (
 // quantity units
 var (
 	_unit_Area      = units.Must(units.Parse("m^2"))
+	_unit_Distance  = units.Must(units.Parse("1.000000e+03*m"))
+	_unit_Duration  = units.Must(units.Parse("3.600000e+03*s"))
 	_unit_Frequency = units.Must(units.Parse("s^-1"))
 	_unit_Length    = units.Must(units.Parse("m"))
 	_unit_Scalar    = units.Must(units.Parse(""))
-	_unit_Speed     = units.Must(units.Parse("m*s^-1"))
+	_unit_Speed     = units.Must(units.Parse("2.777778e-01*m*s^-1"))
 	_unit_Time      = units.Must(units.Parse("s"))
 )
 
@@ -76,6 +91,34 @@ func (q _Area) Value() float64 {
 
 func (q _Area) Unit() units.Unit {
 	return _unit_Area
+}
+
+func NewDistance(val float64) Distance {
+	return _Distance(val)
+}
+
+func (q _Distance) Value() float64 {
+	return float64(q)
+}
+
+func (q _Distance) Unit() units.Unit {
+	return _unit_Distance
+}
+
+func (q _Distance) DivideDuration(val Duration) Speed {
+	return NewSpeed(q.Value() / val.Value())
+}
+
+func NewDuration(val float64) Duration {
+	return _Duration(val)
+}
+
+func (q _Duration) Value() float64 {
+	return float64(q)
+}
+
+func (q _Duration) Unit() units.Unit {
+	return _unit_Duration
 }
 
 func NewFrequency(val float64) Frequency {
@@ -110,10 +153,6 @@ func (q _Length) MultiplyScalar(val Scalar) Length {
 	return NewLength(q.Value() * val.Value())
 }
 
-func (q _Length) DivideTime(val Time) Speed {
-	return NewSpeed(q.Value() / val.Value())
-}
-
 func NewScalar(val float64) Scalar {
 	return _Scalar(val)
 }
@@ -142,8 +181,8 @@ func (q _Speed) Unit() units.Unit {
 	return _unit_Speed
 }
 
-func (q _Speed) MultiplyTime(val Time) Length {
-	return NewLength(q.Value() * val.Value())
+func (q _Speed) MultiplyDuration(val Duration) Distance {
+	return NewDistance(q.Value() * val.Value())
 }
 
 func NewTime(val float64) Time {

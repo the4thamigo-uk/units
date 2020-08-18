@@ -9,7 +9,7 @@ import (
 func TestParse_Empty(t *testing.T) {
 	u, err := Parse("")
 	require.NoError(t, err)
-	require.Equal(t, Scalar(), u)
+	require.Equal(t, Scalar(1), u)
 }
 
 func TestParse_Unit(t *testing.T) {
@@ -45,19 +45,20 @@ func TestParse_CompoundUnit(t *testing.T) {
 func TestParse_CompoundUnitCancelsToScalar(t *testing.T) {
 	u, err := Parse("u1^1 * u2^-1 * u1^-1 * u2^1")
 	require.NoError(t, err)
-	require.Equal(t, Scalar(), u)
+	require.Equal(t, Scalar(1), u)
 }
 
 func TestParse_EvalUnitExpression_BlankIsScalar(t *testing.T) {
 	ue := Expression{}
 	u, err := ue.Unit()
 	require.NoError(t, err)
-	require.Equal(t, Scalar(), u)
+	require.Equal(t, Scalar(1), u)
 }
 
 func TestParse_EvalUnitExpression_SingleTerm(t *testing.T) {
 	ue := Expression{
-		Lhs: Term{Name: "u", Exponent: pointy.Int(2)},
+		Lhs: Term{
+			UnitTerm: &UnitTerm{Name: "u", Exponent: pointy.Int(2)}},
 	}
 	u, err := ue.Unit()
 	require.NoError(t, err)
@@ -66,10 +67,12 @@ func TestParse_EvalUnitExpression_SingleTerm(t *testing.T) {
 
 func TestParse_EvalUnitExpression_TwoTerms(t *testing.T) {
 	ue := Expression{
-		Lhs:      Term{Name: "u1", Exponent: pointy.Int(1)},
+		Lhs: Term{
+			UnitTerm: &UnitTerm{Name: "u1", Exponent: pointy.Int(1)}},
 		Operator: pointy.String("/"),
 		Rhs: &Expression{
-			Lhs: Term{Name: "u2", Exponent: pointy.Int(2)},
+			Lhs: Term{
+				UnitTerm: &UnitTerm{Name: "u2", Exponent: pointy.Int(2)}},
 		},
 	}
 	u, err := ue.Unit()
@@ -79,17 +82,32 @@ func TestParse_EvalUnitExpression_TwoTerms(t *testing.T) {
 
 func TestParse_EvalUnitExpression_ThreeTerms(t *testing.T) {
 	ue := Expression{
-		Lhs:      Term{Name: "u1", Exponent: pointy.Int(3)},
+		Lhs: Term{
+			UnitTerm: &UnitTerm{Name: "u1", Exponent: pointy.Int(3)}},
 		Operator: pointy.String("/"),
 		Rhs: &Expression{
-			Lhs:      Term{Name: "u2", Exponent: pointy.Int(2)},
+			Lhs: Term{
+				UnitTerm: &UnitTerm{Name: "u2", Exponent: pointy.Int(2)}},
 			Operator: pointy.String("/"),
 			Rhs: &Expression{
-				Lhs: Term{Name: "u3", Exponent: pointy.Int(1)},
+				Lhs: Term{
+					UnitTerm: &UnitTerm{Name: "u3", Exponent: pointy.Int(1)}},
 			},
 		},
 	}
 	u, err := ue.Unit()
 	require.NoError(t, err)
 	require.Equal(t, NewUnit("u1", 3).Divide(NewUnit("u2", 2)).Divide(NewUnit("u3", 1)), u)
+}
+
+func TestParse_Scalar(t *testing.T) {
+	u, err := Parse("1.23")
+	require.NoError(t, err)
+	require.Equal(t, Scalar(1.23), u)
+}
+
+func TestParse_ScalarAndUnits(t *testing.T) {
+	u, err := Parse("1.23e2 * u1^2 / u2^3")
+	require.NoError(t, err)
+	require.Equal(t, Scalar(123).Multiply(NewUnit("u1", 2)).Divide(NewUnit("u2", 3)), u)
 }

@@ -5,23 +5,26 @@ base (
 )
 
 derived (
-	mps = m / s;
+	h = s * 3600;
+	km = 1000 * m;
 )
 
 quantity (
   Scalar();
   Length(m);
-  Time(s);
-  Speed(mps);
-  Frequency(s^-1);
   Area(m * m);
+  Time(s);
+	Frequency(s^-1);
+	Distance(km);
+	Duration(h);
+  Speed(km / h);
 )
 
 operation (
   Area = Length * Length;
   Length = Length * Scalar;
   Time = Time * Scalar;
-  Speed = Length / Time;
-  Length = Speed * Time;
+  Speed = Distance / Duration;
+  Distance = Speed * Duration;
   Frequency = Scalar / Time;
 )

@@ -6,7 +6,7 @@ import (
 )
 
 func TestUnit_String_Scalar(t *testing.T) {
-	require.Equal(t, "", Scalar().String())
+	require.Equal(t, "", Scalar(1).String())
 }
 
 func TestUnit_String_OneTerm(t *testing.T) {
@@ -36,18 +36,18 @@ func TestUnit_String_Three(t *testing.T) {
 }
 
 func TestUnit_ScalarInvert(t *testing.T) {
-	s := Scalar()
-	require.Equal(t, Scalar(), s.Invert())
+	s := Scalar(1)
+	require.Equal(t, Scalar(1), s.Invert())
 }
 
 func TestUnit_ScalarMultiply(t *testing.T) {
-	s := Scalar().Multiply(Scalar())
-	require.Equal(t, Scalar(), s.Invert())
+	s := Scalar(1).Multiply(Scalar(1))
+	require.Equal(t, Scalar(1), s.Invert())
 }
 
 func TestUnit_ScalarDivide(t *testing.T) {
-	s := Scalar().Divide(Scalar())
-	require.Equal(t, Scalar(), s.Invert())
+	s := Scalar(1).Divide(Scalar(1))
+	require.Equal(t, Scalar(1), s.Invert())
 }
 
 func TestUnit_Invert(t *testing.T) {
@@ -59,27 +59,27 @@ func TestUnit_Invert(t *testing.T) {
 func TestUnit_MultiplyByInverse(t *testing.T) {
 	u := NewUnit("u", 1)
 	ui := u.Invert()
-	require.Equal(t, Scalar(), u.Multiply(ui))
+	require.Equal(t, Scalar(1), u.Multiply(ui))
 }
 
 func TestUnit_MultiplyByScalarGivesSelf(t *testing.T) {
 	u := NewUnit("u", 1)
-	require.Equal(t, u, u.Multiply(Scalar()))
+	require.Equal(t, u, u.Multiply(Scalar(1)))
 }
 
 func TestUnit_ScalarDivideIsInvert(t *testing.T) {
 	u := NewUnit("u", 1)
-	require.Equal(t, Scalar().Divide(u), u.Invert())
+	require.Equal(t, Scalar(1).Divide(u), u.Invert())
 }
 
 func TestUnit_DivideBySelfGivesScalar(t *testing.T) {
 	u := NewUnit("u", 1)
-	require.Equal(t, Scalar(), u.Divide(u))
+	require.Equal(t, Scalar(1), u.Divide(u))
 }
 
 func TestUnit_DivideByScalarGivesSelf(t *testing.T) {
 	u := NewUnit("u", 1)
-	require.Equal(t, u, u.Divide(Scalar()))
+	require.Equal(t, u, u.Divide(Scalar(1)))
 }
 
 func TestUnit_MultiplyByDemoninatorGivesNumerator(t *testing.T) {
@@ -130,7 +130,7 @@ func TestUnit_MultipliedUnitsCancel(t *testing.T) {
 	require.Equal(t, "u2", u2.String())
 	require.Equal(t, u1, u.Divide(u2))
 	require.Equal(t, u2, u.Divide(u1))
-	require.Equal(t, Scalar(), u.Divide(u1).Divide(u2))
+	require.Equal(t, Scalar(1), u.Divide(u1).Divide(u2))
 }
 
 func TestUnit_Substitute(t *testing.T) {
@@ -177,4 +177,24 @@ func TestUnit_SubstituteComplex(t *testing.T) {
 			"u3": NewUnit("u1", -3),
 		})
 	require.Equal(t, NewUnit("u2", -26), u)
+}
+
+func TestUnit_String_ScalarMultiplyFactor(t *testing.T) {
+	u1 := Scalar(2).Multiply(Scalar(-3))
+	u2 := Scalar(-6)
+	require.Equal(t, u1, u2)
+}
+
+func TestUnit_String_ScalarDivideFactor(t *testing.T) {
+	u1 := Scalar(4)
+	u2 := Scalar(-2)
+	require.Equal(t, Scalar(-2), u1.Divide(u2))
+}
+
+func TestUnit_String_UnitMultiplyFactor(t *testing.T) {
+	u1 := NewUnit("u1", 2).Multiply(Scalar(2))
+	u2 := NewUnit("u2", 3).Multiply(Scalar(-3))
+	u := u1.Multiply(u2)
+	ue := NewUnit("u1", 2).Multiply(NewUnit("u2", 3)).Multiply(Scalar(-6))
+	require.Equal(t, ue, u)
 }

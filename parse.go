@@ -3,6 +3,8 @@ package units
 import (
 	"fmt"
 	"github.com/alecthomas/participle"
+	"github.com/alecthomas/participle/lexer"
+	"github.com/alecthomas/participle/lexer/ebnf"
 )
 
 type (
@@ -13,9 +15,17 @@ type (
 	}
 
 	Term struct {
+		ScalarTerm *ScalarTerm `(@@ |`
+		UnitTerm   *UnitTerm   `@@)?`
+	}
+
+	ScalarTerm struct {
+		Scale float64 `(@Number)`
+	}
+
+	UnitTerm struct {
 		Name     string `@Ident`
-		Sign     string `("^" @("+" | "-")?`
-		Exponent *int   `@Int)?`
+		Exponent *int   `("^" @Number)?`
 	}
 )
 
@@ -23,22 +33,36 @@ func Parse(s string) (Unit, error) {
 	type Root struct {
 		Expr *Expression `@@?`
 	}
-
-	parser, err := participle.Build(&Root{})
-	if err != nil {
-		return nil, err
-	}
-
 	var root Root
-	err = parser.ParseString(s, &root)
+	err := ParseInto(&root, s)
 	if err != nil {
 		return nil, err
 	}
-
 	if root.Expr == nil {
-		return Scalar(), nil
+		return Scalar(1), nil
 	}
 	return root.Expr.Unit()
+}
+
+func ParseInto(out interface{}, s string) error {
+	lex := lexer.Must(ebnf.New(`
+		Ident = (alpha | "_") { "_" | alpha | digit } .
+		Number = [ "-" | "+" ] ("." | digit) { "." | digit } [ ("e"|"E") Number] .
+		Punct = ";" | "+" | "-" | "*" | "/" | "^" | "\"" | "(" | ")" | "=" .
+		Whitespace = " " | "\r" | "\t" | "\n" .
+		alpha = "a"…"z" | "A"…"Z" .
+		digit = "0"…"9" .
+	`))
+
+	parser, err := participle.Build(out,
+		participle.Lexer(lex),
+		participle.Elide("Whitespace"),
+	)
+	if err != nil {
+		return err
+	}
+
+	return parser.ParseString(s, out)
 }
 
 func Must(u Unit, err error) Unit {
@@ -77,12 +101,23 @@ func (exp Expression) Unit() (Unit, error) {
 }
 
 func (t Term) Unit() Unit {
+	if t.ScalarTerm != nil {
+		return t.ScalarTerm.Unit()
+	}
+	if t.UnitTerm != nil {
+		return t.UnitTerm.Unit()
+	}
+	return Scalar(1)
+}
+
+func (st ScalarTerm) Unit() Unit {
+	return Scalar(st.Scale)
+}
+
+func (t UnitTerm) Unit() Unit {
 	exp := 1
 	if t.Exponent != nil {
 		exp = *t.Exponent
-	}
-	if t.Sign == "-" {
-		exp = -exp
 	}
 	return NewUnit(t.Name, exp)
 }
