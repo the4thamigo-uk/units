@@ -17,6 +17,7 @@ type (
 
 	Unit interface {
 		String() string
+		IsScalar() bool
 		Equal(Unit) bool
 		Subs(map[string]Unit) Unit
 		Validate(map[string]Unit) error
@@ -49,6 +50,10 @@ func makeUnit(scale float64, dms dims) unit {
 		scale: scale,
 		dims:  dms,
 	}
+}
+
+func (u unit) IsScalar() bool {
+	return len(u.dims) == 0
 }
 
 func (u unit) Subs(us map[string]Unit) Unit {
@@ -102,7 +107,7 @@ func (u unit) String() string {
 	if u.scale == 1.0 {
 		return strings.Join(ss, "*")
 	}
-	return fmt.Sprintf("%e*", u.scale) + strings.Join(ss, "*")
+	return fmt.Sprintf("%.17e*", u.scale) + strings.Join(ss, "*")
 }
 
 func (u unit) Invert() Unit {

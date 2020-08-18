@@ -1,13 +1,14 @@
 package example
 
 import (
+	"fmt"
 	"github.com/the4thamigo-uk/units"
 )
 
 // units
 var (
-	h  = units.Must(units.Parse("3.600000e+03*s"))
-	km = units.Must(units.Parse("1.000000e+03*m"))
+	h  = units.Must(units.Parse("3.60000000000000000e+03*s"))
+	km = units.Must(units.Parse("1.00000000000000000e+03*m"))
 	m  = units.Must(units.Parse("m"))
 	s  = units.Must(units.Parse("s"))
 )
@@ -17,6 +18,7 @@ type (
 	_Area float64
 	Area  interface {
 		Value() float64
+		Convert(units.Unit) (float64, error)
 		Unit() units.Unit
 		BaseUnit() units.Unit
 	}
@@ -24,6 +26,7 @@ type (
 	_Distance float64
 	Distance  interface {
 		Value() float64
+		Convert(units.Unit) (float64, error)
 		Unit() units.Unit
 		BaseUnit() units.Unit
 		DivideDuration(val Duration) Speed
@@ -32,6 +35,7 @@ type (
 	_Duration float64
 	Duration  interface {
 		Value() float64
+		Convert(units.Unit) (float64, error)
 		Unit() units.Unit
 		BaseUnit() units.Unit
 	}
@@ -39,6 +43,7 @@ type (
 	_Frequency float64
 	Frequency  interface {
 		Value() float64
+		Convert(units.Unit) (float64, error)
 		Unit() units.Unit
 		BaseUnit() units.Unit
 	}
@@ -46,6 +51,7 @@ type (
 	_Length float64
 	Length  interface {
 		Value() float64
+		Convert(units.Unit) (float64, error)
 		Unit() units.Unit
 		BaseUnit() units.Unit
 		MultiplyLength(val Length) Area
@@ -55,6 +61,7 @@ type (
 	_Scalar float64
 	Scalar  interface {
 		Value() float64
+		Convert(units.Unit) (float64, error)
 		Unit() units.Unit
 		BaseUnit() units.Unit
 		DivideTime(val Time) Frequency
@@ -63,6 +70,7 @@ type (
 	_Speed float64
 	Speed  interface {
 		Value() float64
+		Convert(units.Unit) (float64, error)
 		Unit() units.Unit
 		BaseUnit() units.Unit
 		MultiplyDuration(val Duration) Distance
@@ -71,6 +79,7 @@ type (
 	_Time float64
 	Time  interface {
 		Value() float64
+		Convert(units.Unit) (float64, error)
 		Unit() units.Unit
 		BaseUnit() units.Unit
 		MultiplyScalar(val Scalar) Time
@@ -82,9 +91,9 @@ var (
 	_unit_Area           = units.Must(units.Parse("m^2"))
 	_base_unit_Area      = units.Must(units.Parse("m^2"))
 	_unit_Distance       = units.Must(units.Parse("km"))
-	_base_unit_Distance  = units.Must(units.Parse("1.000000e+03*m"))
+	_base_unit_Distance  = units.Must(units.Parse("1.00000000000000000e+03*m"))
 	_unit_Duration       = units.Must(units.Parse("h"))
-	_base_unit_Duration  = units.Must(units.Parse("3.600000e+03*s"))
+	_base_unit_Duration  = units.Must(units.Parse("3.60000000000000000e+03*s"))
 	_unit_Frequency      = units.Must(units.Parse("s^-1"))
 	_base_unit_Frequency = units.Must(units.Parse("s^-1"))
 	_unit_Length         = units.Must(units.Parse("m"))
@@ -92,7 +101,7 @@ var (
 	_unit_Scalar         = units.Must(units.Parse(""))
 	_base_unit_Scalar    = units.Must(units.Parse(""))
 	_unit_Speed          = units.Must(units.Parse("h^-1*km"))
-	_base_unit_Speed     = units.Must(units.Parse("2.777778e-01*m*s^-1"))
+	_base_unit_Speed     = units.Must(units.Parse("2.77777777777777790e-01*m*s^-1"))
 	_unit_Time           = units.Must(units.Parse("s"))
 	_base_unit_Time      = units.Must(units.Parse("s"))
 )
@@ -103,6 +112,14 @@ func NewArea(val float64) Area {
 
 func (q _Area) Value() float64 {
 	return float64(q)
+}
+
+func (q _Area) Convert(u units.Unit) (float64, error) {
+	u2 := q.BaseUnit().Divide(u)
+	if !u2.IsScalar() {
+		return 0, fmt.Errorf("cannot convert '%s' to given units '%s'", q.Unit(), u)
+	}
+	return u2.Scale() * float64(q), nil
 }
 
 func (q _Area) Unit() units.Unit {
@@ -119,6 +136,14 @@ func NewDistance(val float64) Distance {
 
 func (q _Distance) Value() float64 {
 	return float64(q)
+}
+
+func (q _Distance) Convert(u units.Unit) (float64, error) {
+	u2 := q.BaseUnit().Divide(u)
+	if !u2.IsScalar() {
+		return 0, fmt.Errorf("cannot convert '%s' to given units '%s'", q.Unit(), u)
+	}
+	return u2.Scale() * float64(q), nil
 }
 
 func (q _Distance) Unit() units.Unit {
@@ -141,6 +166,14 @@ func (q _Duration) Value() float64 {
 	return float64(q)
 }
 
+func (q _Duration) Convert(u units.Unit) (float64, error) {
+	u2 := q.BaseUnit().Divide(u)
+	if !u2.IsScalar() {
+		return 0, fmt.Errorf("cannot convert '%s' to given units '%s'", q.Unit(), u)
+	}
+	return u2.Scale() * float64(q), nil
+}
+
 func (q _Duration) Unit() units.Unit {
 	return _unit_Duration
 }
@@ -157,6 +190,14 @@ func (q _Frequency) Value() float64 {
 	return float64(q)
 }
 
+func (q _Frequency) Convert(u units.Unit) (float64, error) {
+	u2 := q.BaseUnit().Divide(u)
+	if !u2.IsScalar() {
+		return 0, fmt.Errorf("cannot convert '%s' to given units '%s'", q.Unit(), u)
+	}
+	return u2.Scale() * float64(q), nil
+}
+
 func (q _Frequency) Unit() units.Unit {
 	return _unit_Frequency
 }
@@ -171,6 +212,14 @@ func NewLength(val float64) Length {
 
 func (q _Length) Value() float64 {
 	return float64(q)
+}
+
+func (q _Length) Convert(u units.Unit) (float64, error) {
+	u2 := q.BaseUnit().Divide(u)
+	if !u2.IsScalar() {
+		return 0, fmt.Errorf("cannot convert '%s' to given units '%s'", q.Unit(), u)
+	}
+	return u2.Scale() * float64(q), nil
 }
 
 func (q _Length) Unit() units.Unit {
@@ -197,6 +246,14 @@ func (q _Scalar) Value() float64 {
 	return float64(q)
 }
 
+func (q _Scalar) Convert(u units.Unit) (float64, error) {
+	u2 := q.BaseUnit().Divide(u)
+	if !u2.IsScalar() {
+		return 0, fmt.Errorf("cannot convert '%s' to given units '%s'", q.Unit(), u)
+	}
+	return u2.Scale() * float64(q), nil
+}
+
 func (q _Scalar) Unit() units.Unit {
 	return _unit_Scalar
 }
@@ -217,6 +274,14 @@ func (q _Speed) Value() float64 {
 	return float64(q)
 }
 
+func (q _Speed) Convert(u units.Unit) (float64, error) {
+	u2 := q.BaseUnit().Divide(u)
+	if !u2.IsScalar() {
+		return 0, fmt.Errorf("cannot convert '%s' to given units '%s'", q.Unit(), u)
+	}
+	return u2.Scale() * float64(q), nil
+}
+
 func (q _Speed) Unit() units.Unit {
 	return _unit_Speed
 }
@@ -235,6 +300,14 @@ func NewTime(val float64) Time {
 
 func (q _Time) Value() float64 {
 	return float64(q)
+}
+
+func (q _Time) Convert(u units.Unit) (float64, error) {
+	u2 := q.BaseUnit().Divide(u)
+	if !u2.IsScalar() {
+		return 0, fmt.Errorf("cannot convert '%s' to given units '%s'", q.Unit(), u)
+	}
+	return u2.Scale() * float64(q), nil
 }
 
 func (q _Time) Unit() units.Unit {

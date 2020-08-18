@@ -12,4 +12,7 @@ func Test_Speed(t *testing.T) {
 	t.Logf("%v (%v)", s.Value(), s.Unit())
 	require.Equal(t, float64(2), s.Value())
 
+	val, err := s.Convert(m.Divide(h))
+	require.NoError(t, err)
+	t.Logf("%v", val)
 }

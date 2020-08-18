@@ -11,6 +11,7 @@ package {{.Package}}
 
 import (
 	"github.com/the4thamigo-uk/units"
+	"fmt"
 )
 
 // units
@@ -25,6 +26,7 @@ type (
 		{{.ValueName}} float64
 		{{.InterfaceName}} interface {
 			Value() float64
+			Convert(units.Unit) (float64, error)
 			Unit() units.Unit
 			BaseUnit() units.Unit
 			{{range .Operations}}{{.FunctionSpec}}
@@ -46,6 +48,14 @@ func New{{.InterfaceName}}(val float64) {{.InterfaceName}} {
 
 func (q {{.ValueName}}) Value() float64 {
 	return float64(q)
+}
+
+func (q {{.ValueName}}) Convert(u units.Unit) (float64, error) {
+	u2 := q.BaseUnit().Divide(u)	
+	if !u2.IsScalar() {
+		return 0, fmt.Errorf("cannot convert '%s' to given units '%s'", q.Unit(), u)
+	}
+	return u2.Scale() * float64(q), nil
 }
 
 func (q {{.ValueName}}) Unit() units.Unit {
