@@ -1,10 +1,10 @@
 package example;
 unit (
-	m;
-	s;
+  m;
+  s;
   mps = m / s;
-	h = s * 3600;
-	km = 1000 * m;
+  h = s * 3600;
+  km = 1000 * m;
   kmph = km / h;
   nm = 1852 * m;
   kn = nm / h;
@@ -15,9 +15,9 @@ quantity (
   Length(m);
   Area(m * m);
   Time(s);
-	Frequency(s^-1);
-	Distance(km);
-	Duration(h);
+  Frequency(s^-1);
+  Distance(km);
+  Duration(h);
   Speed(km/h);
 )
 
