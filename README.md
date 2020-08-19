@@ -65,16 +65,16 @@ In terms of the golang code, this means that The `Length` quantity, will be gene
 
 ```
 func (q _length) DivideTime(val Time) Speed {
-	return NewSpeed(q.Value() / val.Value())
+  return NewSpeed(q.Value() / val.Value())
 }
 ```
 
 In terms of the calling code, you work like this :
 
 ```
-	l := NewLength(100)
-	t := NewTime(50)
-	s := l.DivideTime(t)
+  l := NewLength(100)
+  t := NewTime(50)
+  s := l.DivideTime(t)
   sKmph := s.Value()
   sMps, err := s.Convert(mps)
 ```
