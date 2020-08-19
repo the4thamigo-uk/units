@@ -6,16 +6,19 @@ import (
 
 type (
 	AST struct {
-		Package      string                   `"package" @Ident ";"`
-		BaseUnits    []*BaseUnitDefinition    `"base" "(" { @@ ";" } ")"`
-		DerivedUnits []*DerivedUnitDefinition `"derived" "(" { @@ ";" } ")"`
-		Quantities   []*QuantityDefinition    `"quantity" "(" { @@ ";" } ")"`
-		Operations   []*OperationDefinition   `"operation" "(" { @@ ";" } ")"`
+		Package    string                 `"package" @Ident ";"`
+		Units      []*UnitDefinition      `"unit" "(" { @@ ";" } ")"`
+		Quantities []*QuantityDefinition  `"quantity" "(" { @@ ";" } ")"`
+		Operations []*OperationDefinition `"operation" "(" { @@ ";" } ")"`
+	}
+
+	UnitDefinition struct {
+		DerivedUnit *DerivedUnitDefinition `@@ |`
+		BaseUnit    *BaseUnitDefinition    `@@`
 	}
 
 	BaseUnitDefinition struct {
-		Name    string `@Ident "="`
-		Literal string `"\"" @Ident "\""`
+		Name string `@Ident`
 	}
 
 	DerivedUnitDefinition struct {

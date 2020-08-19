@@ -1,10 +1,8 @@
 package example;
-base (
-	m = "m";
-	s = "s";
-)
-
-derived (
+unit (
+	m;
+	s;
+  mps = m / s;
 	h = s * 3600;
 	km = 1000 * m;
   kmph = km / h;
@@ -20,7 +18,7 @@ quantity (
 	Frequency(s^-1);
 	Distance(km);
 	Duration(h);
-  Speed(kmph);
+  Speed(km/h);
 )
 
 operation (

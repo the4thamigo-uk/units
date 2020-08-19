@@ -6,12 +6,9 @@ import (
 )
 
 const testCfg = `package example;
-base (
-	m = "m";
-	s = "s";
-)
-
-derived (
+unit (
+	m;
+	s;
 	h = s * 3600;
 	km = 1000 * m;
 )

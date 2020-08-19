@@ -84,26 +84,28 @@ func analyse(ast *AST) (*Semantics, error) {
 		Units:      UnitsMap{},
 		Quantities: QuantitiesMap{},
 	}
-	for _, bu := range ast.BaseUnits {
-		if _, ok := s.Units[bu.Name]; ok {
-			return nil, fmt.Errorf("unit '%s' is defined more than once", bu.Name)
+	for _, u := range ast.Units {
+		if u.BaseUnit != nil {
+			bu := u.BaseUnit
+			if _, ok := s.Units[bu.Name]; ok {
+				return nil, fmt.Errorf("unit '%s' is defined more than once", bu.Name)
+			}
+			s.Units[bu.Name] = units.NewUnit(bu.Name, 1)
+		} else if u.DerivedUnit != nil {
+			du := u.DerivedUnit
+			if _, ok := s.Units[du.Name]; ok {
+				return nil, fmt.Errorf("unit '%s' is defined more than once", du.Name)
+			}
+			u, err := du.Expression.Unit()
+			if err != nil {
+				return nil, err
+			}
+			err = u.Validate(s.Units)
+			if err != nil {
+				return nil, fmt.Errorf("failed to validate unit '%s' : %w", du.Name, err)
+			}
+			s.Units[du.Name] = u.Subs(s.Units)
 		}
-		s.Units[bu.Name] = units.NewUnit(bu.Literal, 1)
-	}
-
-	for _, du := range ast.DerivedUnits {
-		if _, ok := s.Units[du.Name]; ok {
-			return nil, fmt.Errorf("unit '%s' is defined more than once", du.Name)
-		}
-		u, err := du.Expression.Unit()
-		if err != nil {
-			return nil, err
-		}
-		err = u.Validate(s.Units)
-		if err != nil {
-			return nil, fmt.Errorf("failed to validate unit '%s' : %w", du.Name, err)
-		}
-		s.Units[du.Name] = u.Subs(s.Units)
 	}
 
 	for _, qd := range ast.Quantities {

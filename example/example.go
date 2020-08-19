@@ -9,9 +9,10 @@ import (
 var (
 	h    = units.Must(units.Parse("3.60000000000000000e+03*s"))
 	km   = units.Must(units.Parse("1.00000000000000000e+03*m"))
-	kmPh = units.Must(units.Parse("2.77777777777777790e-01*m*s^-1"))
+	kmph = units.Must(units.Parse("2.77777777777777790e-01*m*s^-1"))
 	kn   = units.Must(units.Parse("5.14444444444444482e-01*m*s^-1"))
 	m    = units.Must(units.Parse("m"))
+	mps  = units.Must(units.Parse("m*s^-1"))
 	nm   = units.Must(units.Parse("1.85200000000000000e+03*m"))
 	s    = units.Must(units.Parse("s"))
 )
