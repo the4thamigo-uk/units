@@ -7,6 +7,9 @@ base (
 derived (
 	h = s * 3600;
 	km = 1000 * m;
+  kmph = km / h;
+  nm = 1852 * m;
+  kn = nm / h;
 )
 
 quantity (
@@ -17,7 +20,7 @@ quantity (
 	Frequency(s^-1);
 	Distance(km);
 	Duration(h);
-  Speed(km / h);
+  Speed(kmph);
 )
 
 operation (
