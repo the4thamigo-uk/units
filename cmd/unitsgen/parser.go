@@ -20,6 +20,7 @@ type (
 		Unit       units.Unit
 		BaseUnit   units.Unit
 		Operations []*Operation
+		BaseType   string
 	}
 
 	Operation struct {
@@ -43,6 +44,10 @@ func (q *Quantity) UnitName() string {
 
 func (q *Quantity) BaseUnitName() string {
 	return "_base_unit_" + q.Name
+}
+
+func (q *Quantity) ZeroValueName() string {
+	return "_zero_value_" + q.Name
 }
 
 func (o *Operation) FunctionSpec() (string, error) {
@@ -73,8 +78,9 @@ func evalQuantity(qd *QuantityDefinition) (*Quantity, error) {
 		return nil, err
 	}
 	return &Quantity{
-		Name: qd.Name,
-		Unit: u,
+		Name:     qd.Name,
+		Unit:     u,
+		BaseType: qd.BaseType,
 	}, nil
 }
 

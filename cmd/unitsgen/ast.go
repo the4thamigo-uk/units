@@ -29,6 +29,7 @@ type (
 	QuantityDefinition struct {
 		Name           string           `@Ident`
 		UnitExpression units.Expression `"(" @@? ")"`
+		BaseType       string           `@Ident`
 	}
 
 	OperationDefinition struct {

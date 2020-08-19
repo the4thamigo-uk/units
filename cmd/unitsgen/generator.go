@@ -12,7 +12,6 @@ package {{.Package}}
 import (
 	"github.com/the4thamigo-uk/units"
 	"fmt"
-	"math"
 )
 
 // units
@@ -24,10 +23,10 @@ var (
 // quantities
 type (
 	{{range .Quantities}}
-		{{.TypeName}} float64
+		{{.TypeName}} {{.BaseType}}
 		{{.InterfaceName}} interface {
-			Value() float64
-			Convert(units.Unit) (float64, error)
+			Value() {{.BaseType}}
+			Convert(units.Unit) ({{.BaseType}}, error)
 			Unit() units.Unit
 			BaseUnit() units.Unit
 			Eq(q2 {{.InterfaceName}}) bool
@@ -40,7 +39,6 @@ type (
 			Abs() {{.InterfaceName}}
 			Min(q2 {{.InterfaceName}}) {{.InterfaceName}}
 			Max(q2 {{.InterfaceName}}) {{.InterfaceName}}
-			Mod(q2 {{.InterfaceName}}) {{.InterfaceName}}
 			{{range .Operations}}{{.FunctionSpec}}
 			{{end}}}
 	{{end}}
@@ -48,26 +46,32 @@ type (
 
 // quantity units
 var (
-{{range $q := .Quantities}}{{.UnitName}} = units.Must(units.Parse("{{$q.Unit.String}}"))
-{{.BaseUnitName}} = units.Must(units.Parse("{{$q.BaseUnit.String}}"))
+{{range .Quantities}}{{.UnitName}} = units.Must(units.Parse("{{.Unit.String}}"))
+{{.BaseUnitName}} = units.Must(units.Parse("{{.BaseUnit.String}}"))
+{{end}}
+)
+
+// quantity zero values
+var (
+{{range .Quantities}}{{.ZeroValueName}} = New{{.InterfaceName}}(0)
 {{end}}
 )
 
 {{range $q := .Quantities}}
-func New{{.InterfaceName}}(val float64) {{.InterfaceName}} {
+func New{{.InterfaceName}}(val {{.BaseType}}) {{.InterfaceName}} {
 	return {{.TypeName}}(val)
 }
 
-func (q {{.TypeName}}) Value() float64 {
-	return float64(q)
+func (q {{.TypeName}}) Value() {{.BaseType}} {
+	return {{.BaseType}}(q)
 }
 
-func (q {{.TypeName}}) Convert(u units.Unit) (float64, error) {
+func (q {{.TypeName}}) Convert(u units.Unit) ({{.BaseType}}, error) {
 	u2 := q.BaseUnit().Divide(u)	
 	if !u2.IsScalar() {
 		return 0, fmt.Errorf("cannot convert '%s' to given units '%s'", q.Unit(), u)
 	}
-	return u2.Scale() * float64(q), nil
+	return {{.BaseType}}(u2.Scale() * float64(q.Value())), nil
 }
 
 func (q {{.TypeName}}) Unit() units.Unit {
@@ -106,20 +110,29 @@ func (q {{.TypeName}}) Inside(q1, q2 {{.InterfaceName}}) bool {
 	return q.Gt(q1) && q.Lt(q2)
 }
 
+func (q {{.TypeName}}) Negate() {{.InterfaceName}} {
+	return New{{.InterfaceName}}(-q.Value())
+}
+
 func (q {{.TypeName}}) Abs() {{.InterfaceName}} {
-	return New{{.InterfaceName}}(math.Abs(q.Value()))
+	if q.GtEq({{.ZeroValueName}}) {
+		return q
+	}
+	return q.Negate()
 }
 
 func (q {{.TypeName}}) Min(q2 {{.InterfaceName}}) {{.InterfaceName}} {
-	return New{{.InterfaceName}}(math.Min(q.Value(), q2.Value()))
+	if q.Lt(q2) {
+		return q
+	}
+	return q2
 }
 
 func (q {{.TypeName}}) Max(q2 {{.InterfaceName}}) {{.InterfaceName}} {
-	return New{{.InterfaceName}}(math.Max(q.Value(), q2.Value()))
-}
-
-func (q {{.TypeName}}) Mod(q2 {{.InterfaceName}}) {{.InterfaceName}} {
-	return New{{.InterfaceName}}(math.Mod(q.Value(), q2.Value()))
+	if q.Gt(q2) {
+		return q
+	}
+	return q2
 }
 
 {{range $op := .Operations}}

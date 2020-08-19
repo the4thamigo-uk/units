@@ -14,14 +14,14 @@ unit (
 )
 
 quantity (
-  Scalar();
-  Length(m);
-  Area(m * m);
-  Time(s);
-	Frequency(s^-1);
-	Distance(km);
-	Duration(h);
-  Speed(km / h);
+  Scalar() float64;
+  Length(m) float64;
+  Area(m * m) float64;
+  Time(s) float64;
+	Frequency(s^-1) float64;
+	Distance(km) float64;
+	Duration(h) float64;
+  Speed(km / h) float64;
 )
 
 operation (
