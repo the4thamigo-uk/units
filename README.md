@@ -39,6 +39,7 @@ quantity (
   Time(h);
   Speed(kmph);
 )
+```
 
 Each `quantity` is represented by an `interface` in the golang code, and is provided with a constructor function and a few default methods
 like this :
