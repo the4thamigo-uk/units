@@ -9,7 +9,7 @@ This is a PoC for a code generation tool that builds code that enforces correct 
 To build the example configuration file :
 
 ```
-go build ./cmd/generator && ./generator -c ./example/example.units -o ./example/example.go
+go build ./cmd/unitsgen && ./unitsgen -c ./example/example.units -o ./example/example.go
 ```
 
 The tool works from a [configuration file](./example/example.units) that is divided into three parts :

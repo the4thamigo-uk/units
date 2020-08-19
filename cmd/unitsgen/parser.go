@@ -29,7 +29,7 @@ type (
 	}
 )
 
-func (q *Quantity) ValueName() string {
+func (q *Quantity) TypeName() string {
 	return "_" + q.Name
 }
 
