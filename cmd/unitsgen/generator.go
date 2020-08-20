@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"go/format"
 	"text/template"
 )
@@ -198,7 +199,7 @@ func (q *{{$q.TypeName}}) {{$op.FunctionSpec}} {
 		return nil
 	}
 	{{end}}
-	return {{$op.Result.PtrConstructor}}(*q.Value() {{$op.Operator}} *q2.Value())
+	return {{$op.Result.PtrConstructor}}({{$op.FunctionImpl "*q.Value()" "*q2.Value()" }})
 }
 {{end}}
 {{end}}
@@ -208,11 +209,11 @@ func generate(s *Semantics) (string, error) {
 	var b bytes.Buffer
 	err := tmpl.Execute(&b, s)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to generate : %w", err)
 	}
 	src, err := format.Source(b.Bytes())
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to format generated code : %w", err)
 	}
 	return string(src), nil
 }

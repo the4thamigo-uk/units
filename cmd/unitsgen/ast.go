@@ -35,7 +35,7 @@ type (
 	OperationDefinition struct {
 		Result   string `@Ident "="`
 		Left     string `@Ident`
-		Operator string `@("*" | "/" | "+" | "-")`
+		Operator string `@("*" | "/" | "+" | "-" | "%")`
 		Right    string `@Ident`
 	}
 )

@@ -66,6 +66,10 @@ func (o *Operation) FunctionSpec() (string, error) {
 	return fmt.Sprintf("%s%s(q2 *%s) *%s", op, o.Param.Name, o.Param.Name, o.Result.Name), nil
 }
 
+func (o *Operation) FunctionImpl(left, right string) (string, error) {
+	return fmt.Sprintf("%s %s %s", left, o.Operator, right), nil
+}
+
 func operatorName(op string) (string, error) {
 	switch op {
 	case "+":
@@ -76,6 +80,8 @@ func operatorName(op string) (string, error) {
 		return "Multiply", nil
 	case "/":
 		return "Divide", nil
+	case "%":
+		return "Mod", nil
 	}
 	return "", fmt.Errorf("Operator '%s' not supported", op)
 }
