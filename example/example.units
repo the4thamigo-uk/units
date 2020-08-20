@@ -25,6 +25,8 @@ quantity (
 
 operation (
   Area = Length * Length;
+  Length = Length % Length;
+  Beaufort = Beaufort % Beaufort;
   Scalar = Length / Length;
   Length = Length + Length;
   Length = Length - Length;

@@ -227,6 +227,32 @@ func TestLength_DivideLength(t *testing.T) {
 	require.Equal(t, s, q1.DivideLength(q2))
 }
 
+func TestLength_ModLength(t *testing.T) {
+	var n *example.Length
+	q1 := example.NewLengthPtr(3)
+	q2 := example.NewLengthPtr(2)
+	z := example.NewLengthPtr(0)
+	r := example.NewLengthPtr(1)
+	require.Nil(t, n.ModLength(n))
+	require.Nil(t, n.ModLength(q1))
+	require.Nil(t, q1.ModLength(n))
+	require.Nil(t, q1.ModLength(z))
+	require.Equal(t, r, q1.ModLength(q2))
+}
+
+func TestBeaufort_ModLength(t *testing.T) {
+	var n *example.Beaufort
+	q1 := example.NewBeaufortPtr(3)
+	q2 := example.NewBeaufortPtr(2)
+	z := example.NewBeaufortPtr(0)
+	r := example.NewBeaufortPtr(1)
+	require.Nil(t, n.ModBeaufort(n))
+	require.Nil(t, n.ModBeaufort(q1))
+	require.Nil(t, q1.ModBeaufort(n))
+	require.Nil(t, q1.ModBeaufort(z))
+	require.Equal(t, r, q1.ModBeaufort(q2))
+}
+
 func TestLength_Marshal(t *testing.T) {
 
 	type X struct {

@@ -13,6 +13,7 @@ package {{.Package}}
 import (
 	"github.com/the4thamigo-uk/units"
 	"fmt"
+	math "math"
 )
 
 // units
@@ -194,7 +195,7 @@ func (q *{{$q.TypeName}}) {{$op.FunctionSpec}} {
 	if q == nil || q2 == nil {
 		return nil
 	}
-	{{if eq $op.Operator "/"}}
+	{{if or (eq $op.Operator "/") (eq $op.Operator "%")}}
 	if q2.IsZero() {
 		return nil
 	}

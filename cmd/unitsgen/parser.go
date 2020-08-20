@@ -58,6 +58,10 @@ func (q *Quantity) ZeroValueName() string {
 	return "_zero_value_" + q.Name
 }
 
+func (q *Quantity) BaseTypeIsFloat() bool {
+	return q.BaseType == "float32" || q.BaseType == "float64"
+}
+
 func (o *Operation) FunctionSpec() (string, error) {
 	op, err := operatorName(o.Operator)
 	if err != nil {
@@ -67,6 +71,10 @@ func (o *Operation) FunctionSpec() (string, error) {
 }
 
 func (o *Operation) FunctionImpl(left, right string) (string, error) {
+	op := o.Operator
+	if op == "%" && (o.Param.BaseTypeIsFloat() || o.Result.BaseTypeIsFloat()) {
+		return fmt.Sprintf("%s(math.Mod(float64(%s), float64(%s)))", o.Result.BaseType, left, right), nil
+	}
 	return fmt.Sprintf("%s %s %s", left, o.Operator, right), nil
 }
 
@@ -161,6 +169,8 @@ func analyse(ast *AST) (*Semantics, error) {
 			u = left.Unit.Multiply(right.Unit)
 		case "/":
 			u = left.Unit.Divide(right.Unit)
+		case "%":
+			fallthrough
 		case "+":
 			fallthrough
 		case "-":

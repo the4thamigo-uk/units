@@ -3,6 +3,7 @@ package example
 import (
 	"fmt"
 	"github.com/the4thamigo-uk/units"
+	math "math"
 )
 
 // units
@@ -360,6 +361,18 @@ func (q *Beaufort) Max(q2 *Beaufort) *Beaufort {
 		return q
 	}
 	return q2
+}
+
+func (q *Beaufort) ModBeaufort(q2 *Beaufort) *Beaufort {
+	if q == nil || q2 == nil {
+		return nil
+	}
+
+	if q2.IsZero() {
+		return nil
+	}
+
+	return NewBeaufortPtr(*q.Value() % *q2.Value())
 }
 
 func NewDistance(val float64) Distance {
@@ -972,6 +985,18 @@ func (q *Length) MultiplyLength(q2 *Length) *Area {
 	}
 
 	return NewAreaPtr(*q.Value() * *q2.Value())
+}
+
+func (q *Length) ModLength(q2 *Length) *Length {
+	if q == nil || q2 == nil {
+		return nil
+	}
+
+	if q2.IsZero() {
+		return nil
+	}
+
+	return NewLengthPtr(float64(math.Mod(float64(*q.Value()), float64(*q2.Value()))))
 }
 
 func (q *Length) DivideLength(q2 *Length) *Scalar {

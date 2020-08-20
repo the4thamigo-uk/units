@@ -48,7 +48,7 @@ func ParseInto(out interface{}, s string) error {
 	lex := lexer.Must(ebnf.New(`
 		Ident = (alpha | "_") { "_" | alpha | digit } .
 		Number = [ "-" | "+" ] ("." | digit) { "." | digit } [ ("e"|"E") Number] .
-		Punct = ";" | "+" | "-" | "*" | "/" | "^" | "\"" | "(" | ")" | "=" .
+		Punct = ";" | "+" | "-" | "*" | "/" | "^" | "%" | "\"" | "(" | ")" | "=" .
 		Whitespace = " " | "\r" | "\t" | "\n" .
 		alpha = "a"…"z" | "A"…"Z" .
 		digit = "0"…"9" .
