@@ -36,6 +36,12 @@ func TestParse_UnitsExponentsSubtracted(t *testing.T) {
 	require.Equal(t, NewUnit("u", 1), u)
 }
 
+func TestParse_DivideByInverse(t *testing.T) {
+	u, err := Parse("u / u^-1")
+	require.NoError(t, err)
+	require.Equal(t, NewUnit("u", 2), u)
+}
+
 func TestParse_CompoundUnit(t *testing.T) {
 	u, err := Parse("u1^1 * u2^-1 * u1^-2 * u2^2")
 	require.NoError(t, err)
