@@ -83,6 +83,13 @@ func NewAreaPtr(val float64) *Area {
 	return &q
 }
 
+func NewAreaFromPtr(val *float64) *Area {
+	if val == nil {
+		return nil
+	}
+	return NewAreaPtr(*val)
+}
+
 func (q *Area) Value() *float64 {
 	if q == nil {
 		return nil
@@ -220,6 +227,13 @@ func NewBeaufortPtr(val int) *Beaufort {
 	return &q
 }
 
+func NewBeaufortFromPtr(val *int) *Beaufort {
+	if val == nil {
+		return nil
+	}
+	return NewBeaufortPtr(*val)
+}
+
 func (q *Beaufort) Value() *int {
 	if q == nil {
 		return nil
@@ -355,6 +369,13 @@ func NewDistance(val float64) Distance {
 func NewDistancePtr(val float64) *Distance {
 	q := NewDistance(val)
 	return &q
+}
+
+func NewDistanceFromPtr(val *float64) *Distance {
+	if val == nil {
+		return nil
+	}
+	return NewDistancePtr(*val)
 }
 
 func (q *Distance) Value() *float64 {
@@ -501,6 +522,13 @@ func NewDurationPtr(val float64) *Duration {
 	return &q
 }
 
+func NewDurationFromPtr(val *float64) *Duration {
+	if val == nil {
+		return nil
+	}
+	return NewDurationPtr(*val)
+}
+
 func (q *Duration) Value() *float64 {
 	if q == nil {
 		return nil
@@ -638,6 +666,13 @@ func NewFrequencyPtr(val float64) *Frequency {
 	return &q
 }
 
+func NewFrequencyFromPtr(val *float64) *Frequency {
+	if val == nil {
+		return nil
+	}
+	return NewFrequencyPtr(*val)
+}
+
 func (q *Frequency) Value() *float64 {
 	if q == nil {
 		return nil
@@ -773,6 +808,13 @@ func NewLength(val float64) Length {
 func NewLengthPtr(val float64) *Length {
 	q := NewLength(val)
 	return &q
+}
+
+func NewLengthFromPtr(val *float64) *Length {
+	if val == nil {
+		return nil
+	}
+	return NewLengthPtr(*val)
 }
 
 func (q *Length) Value() *float64 {
@@ -926,6 +968,13 @@ func NewScalarPtr(val float64) *Scalar {
 	return &q
 }
 
+func NewScalarFromPtr(val *float64) *Scalar {
+	if val == nil {
+		return nil
+	}
+	return NewScalarPtr(*val)
+}
+
 func (q *Scalar) Value() *float64 {
 	if q == nil {
 		return nil
@@ -1070,6 +1119,13 @@ func NewSpeedPtr(val float64) *Speed {
 	return &q
 }
 
+func NewSpeedFromPtr(val *float64) *Speed {
+	if val == nil {
+		return nil
+	}
+	return NewSpeedPtr(*val)
+}
+
 func (q *Speed) Value() *float64 {
 	if q == nil {
 		return nil
@@ -1212,6 +1268,13 @@ func NewTime(val float64) Time {
 func NewTimePtr(val float64) *Time {
 	q := NewTime(val)
 	return &q
+}
+
+func NewTimeFromPtr(val *float64) *Time {
+	if val == nil {
+		return nil
+	}
+	return NewTimePtr(*val)
 }
 
 func (q *Time) Value() *float64 {

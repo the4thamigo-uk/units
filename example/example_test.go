@@ -5,6 +5,22 @@ import (
 	"testing"
 )
 
+func TestLength_NewLength(t *testing.T) {
+	q := NewLength(1)
+	require.Equal(t, float64(1), q.ValueOrDefault(2))
+}
+
+func TestLength_NewLengthPtr(t *testing.T) {
+	require.Equal(t, float64(1), NewLengthPtr(1).ValueOrDefault(2))
+}
+
+func TestLength_NewFromPtr(t *testing.T) {
+	var n *float64
+	f := float64(1)
+	require.Nil(t, NewLengthFromPtr(n))
+	require.Equal(t, float64(1), NewLengthFromPtr(&f).ValueOrDefault(2))
+}
+
 func TestLength_Value(t *testing.T) {
 	var n *Length
 	require.Nil(t, n.Value())

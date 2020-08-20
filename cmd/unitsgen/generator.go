@@ -50,6 +50,13 @@ func {{.PtrConstructor}}(val {{.BaseType}}) *{{.TypeName}} {
 	return &q
 }
 
+func {{.FromPtrConstructor}}(val *{{.BaseType}}) *{{.TypeName}} {
+	if val == nil {
+		return nil
+	}
+	return {{.PtrConstructor}}(*val)
+}
+
 func (q *{{.TypeName}}) Value() *{{.BaseType}} {
 	if q == nil {
 		return nil

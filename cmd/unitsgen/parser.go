@@ -42,6 +42,10 @@ func (q *Quantity) PtrConstructor() string {
 	return q.Constructor() + "Ptr"
 }
 
+func (q *Quantity) FromPtrConstructor() string {
+	return q.Constructor() + "FromPtr"
+}
+
 func (q *Quantity) UnitName() string {
 	return "_unit_" + q.Name
 }
