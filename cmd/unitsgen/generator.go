@@ -22,8 +22,7 @@ var (
 
 // quantities
 type (
-	{{range .Quantities}}
-		{{.TypeName}} {{.BaseType}}
+	{{range .Quantities}}{{.TypeName}} {{.BaseType}}
 	{{end}}
 )
 

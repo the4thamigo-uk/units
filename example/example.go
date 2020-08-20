@@ -20,23 +20,15 @@ var (
 
 // quantities
 type (
-	Area float64
-
-	Beaufort int
-
-	Distance float64
-
-	Duration float64
-
+	Area      float64
+	Beaufort  int
+	Distance  float64
+	Duration  float64
 	Frequency float64
-
-	Length float64
-
-	Scalar float64
-
-	Speed float64
-
-	Time float64
+	Length    float64
+	Scalar    float64
+	Speed     float64
+	Time      float64
 )
 
 // quantity units
