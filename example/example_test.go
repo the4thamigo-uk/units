@@ -5,12 +5,164 @@ import (
 	"testing"
 )
 
-func Test_Speed(t *testing.T) {
+func TestLength_Value(t *testing.T) {
+	var n *Length
+	require.Nil(t, n.Value())
+	require.Nil(t, n.Value())
+	require.Equal(t, float64(1), n.ValueOrDefault(1))
+
+	q := NewLengthPtr(1)
+	require.NotNil(t, q.Value())
+	require.Equal(t, float64(1), *q.Value())
+	require.Equal(t, float64(1), q.ValueOrDefault(0))
+}
+
+func TestLength_Eq(t *testing.T) {
+	var n *Length
+	q := NewLengthPtr(1)
+	q2 := NewLengthPtr(2)
+	require.False(t, q.Eq(n))
+	require.False(t, n.Eq(q))
+	require.True(t, q.Eq(q))
+	require.False(t, q.Eq(q2))
+}
+
+func TestLength_Gt(t *testing.T) {
+	var n *Length
+	q := NewLengthPtr(1)
+	q2 := NewLengthPtr(2)
+	require.False(t, q.Gt(n))
+	require.False(t, n.Gt(q))
+	require.False(t, q.Gt(q))
+	require.False(t, q.Gt(q2))
+	require.True(t, q2.Gt(q))
+}
+
+func TestLength_Lt(t *testing.T) {
+	var n *Length
+	q := NewLengthPtr(1)
+	q2 := NewLengthPtr(2)
+	require.False(t, q.Lt(n))
+	require.False(t, n.Lt(q))
+	require.False(t, q.Lt(q))
+	require.True(t, q.Lt(q2))
+	require.False(t, q2.Lt(q))
+}
+
+func TestLength_GtEq(t *testing.T) {
+	var n *Length
+	q := NewLengthPtr(1)
+	q2 := NewLengthPtr(2)
+	require.False(t, q.GtEq(n))
+	require.False(t, n.GtEq(q))
+	require.True(t, q.GtEq(q))
+	require.False(t, q.GtEq(q2))
+	require.True(t, q2.GtEq(q))
+}
+
+func TestLength_LtEq(t *testing.T) {
+	var n *Length
+	q := NewLengthPtr(1)
+	q2 := NewLengthPtr(2)
+	require.False(t, q.LtEq(n))
+	require.False(t, n.LtEq(q))
+	require.True(t, q.LtEq(q))
+	require.True(t, q.LtEq(q2))
+	require.False(t, q2.LtEq(q))
+}
+
+func TestLength_Between(t *testing.T) {
+	var n *Length
+	l := NewLengthPtr(1)
+	m := NewLengthPtr(2)
+	u := NewLengthPtr(3)
+	require.False(t, m.Between(n, u))
+	require.False(t, m.Between(l, n))
+	require.False(t, n.Between(l, u))
+	require.False(t, n.Between(n, n))
+
+	require.True(t, m.Between(l, u))
+	require.True(t, l.Between(l, u))
+	require.True(t, u.Between(l, u))
+}
+
+func TestLength_Inside(t *testing.T) {
+	var n *Length
+	l := NewLengthPtr(1)
+	m := NewLengthPtr(2)
+	u := NewLengthPtr(3)
+	require.False(t, m.Inside(n, u))
+	require.False(t, m.Inside(l, n))
+	require.False(t, n.Inside(l, u))
+	require.False(t, n.Inside(n, n))
+
+	require.True(t, m.Inside(l, u))
+	require.False(t, l.Inside(l, u))
+	require.False(t, u.Inside(l, u))
+}
+
+func TestLength_Negate(t *testing.T) {
+	var n *Length
+	q := NewLengthPtr(1)
+	nq := NewLengthPtr(-1)
+	require.Nil(t, n.Negate())
+	require.Equal(t, nq, q.Negate())
+}
+
+func TestLength_Abs(t *testing.T) {
+	var n *Length
+	q := NewLengthPtr(1)
+	nq := NewLengthPtr(-1)
+	require.Nil(t, n.Negate())
+	require.Equal(t, q, q.Abs())
+	require.Equal(t, q, nq.Negate())
+}
+
+func TestLength_Min(t *testing.T) {
+	var n *Length
+	l := NewLengthPtr(1)
+	u := NewLengthPtr(2)
+	require.Nil(t, n.Min(n))
+	require.Nil(t, n.Min(l))
+	require.Nil(t, n.Min(u))
+	require.Nil(t, l.Min(n))
+	require.Nil(t, u.Min(n))
+	require.Equal(t, l, l.Min(u))
+	require.Nil(t, u.Min(n))
+	require.Equal(t, l, u.Min(l))
+}
+
+func TestLength_Max(t *testing.T) {
+	var n *Length
+	l := NewLengthPtr(1)
+	u := NewLengthPtr(2)
+	require.Nil(t, n.Max(n))
+	require.Nil(t, n.Max(l))
+	require.Nil(t, n.Max(u))
+	require.Nil(t, l.Max(n))
+	require.Nil(t, u.Max(n))
+	require.Equal(t, u, l.Max(u))
+	require.Nil(t, u.Max(n))
+	require.Equal(t, u, u.Max(l))
+}
+
+func TestLength_MultiplyLength(t *testing.T) {
+	var n *Length
+	q1 := NewLengthPtr(2)
+	q2 := NewLengthPtr(4)
+	a := NewAreaPtr(8)
+	require.Nil(t, n.MultiplyLength(n))
+	require.Nil(t, n.MultiplyLength(q1))
+	require.Nil(t, q1.MultiplyLength(n))
+	require.Equal(t, a, q1.MultiplyLength(q2))
+}
+
+func TestLength_DivideTime(t *testing.T) {
 	d := NewDistance(100)
 	tm := NewDuration(50)
-	s := d.DivideDuration(tm)
+	s := d.DivideDuration(&tm)
 	t.Logf("%v (%v = %v)", s.Value(), s.Unit(), s.BaseUnit())
-	require.Equal(t, float64(2), s.Value())
+	require.Equal(t, float64(2), s.ValueOrDefault(0))
 
 	s_kn, err := s.Convert(kn)
 	require.NoError(t, err)
@@ -19,33 +171,4 @@ func Test_Speed(t *testing.T) {
 	s_mps, err := s.Convert(mps)
 	require.NoError(t, err)
 	t.Logf("%v (%v)", s_mps, mps)
-}
-
-func Test_Abs(t *testing.T) {
-	d := NewLength(-1)
-	require.Equal(t, NewLength(1), d.Abs())
-}
-
-func Test_Comparison(t *testing.T) {
-	small := NewLength(1)
-	big := NewLength(2)
-	medium := NewLength(1.5)
-	require.True(t, big.Eq(big))
-	require.True(t, big.Gt(small))
-	require.True(t, big.GtEq(small))
-	require.False(t, big.Lt(small))
-	require.False(t, big.LtEq(small))
-	require.False(t, big.Eq(small))
-	require.True(t, medium.Between(small, big))
-	require.False(t, medium.Between(big, small))
-	require.True(t, medium.Inside(small, big))
-	require.False(t, medium.Inside(big, small))
-	require.True(t, small.Between(small, big))
-	require.False(t, small.Between(big, small))
-	require.False(t, small.Inside(small, big))
-	require.False(t, small.Inside(big, small))
-	require.True(t, big.Between(small, big))
-	require.False(t, big.Between(big, small))
-	require.False(t, big.Inside(small, big))
-	require.False(t, big.Inside(big, small))
 }

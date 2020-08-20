@@ -24,23 +24,6 @@ var (
 type (
 	{{range .Quantities}}
 		{{.TypeName}} {{.BaseType}}
-		{{.InterfaceName}} interface {
-			Value() {{.BaseType}}
-			Convert(units.Unit) ({{.BaseType}}, error)
-			Unit() units.Unit
-			BaseUnit() units.Unit
-			Eq(q2 {{.InterfaceName}}) bool
-			Gt(q2 {{.InterfaceName}}) bool
-			GtEq(q2 {{.InterfaceName}}) bool
-			Lt(q2 {{.InterfaceName}}) bool
-			LtEq(q2 {{.InterfaceName}}) bool
-			Between(q1, q2 {{.InterfaceName}}) bool
-			Inside(q1, q2 {{.InterfaceName}}) bool
-			Abs() {{.InterfaceName}}
-			Min(q2 {{.InterfaceName}}) {{.InterfaceName}}
-			Max(q2 {{.InterfaceName}}) {{.InterfaceName}}
-			{{range .Operations}}{{.FunctionSpec}}
-			{{end}}}
 	{{end}}
 )
 
@@ -53,82 +36,142 @@ var (
 
 // quantity zero values
 var (
-{{range .Quantities}}{{.ZeroValueName}} = New{{.InterfaceName}}(0)
+{{range .Quantities}}{{.ZeroValueName}} = {{.Constructor}}(0)
 {{end}}
 )
 
 {{range $q := .Quantities}}
-func New{{.InterfaceName}}(val {{.BaseType}}) {{.InterfaceName}} {
+func {{.Constructor}}(val {{.BaseType}}) {{.TypeName}} {
 	return {{.TypeName}}(val)
 }
 
-func (q {{.TypeName}}) Value() {{.BaseType}} {
-	return {{.BaseType}}(q)
+func {{.PtrConstructor}}(val {{.BaseType}}) *{{.TypeName}} {
+	q := {{.Constructor}}(val)
+	return &q
 }
 
-func (q {{.TypeName}}) Convert(u units.Unit) ({{.BaseType}}, error) {
+func (q *{{.TypeName}}) Value() *{{.BaseType}} {
+	if q == nil {
+		return nil
+	}
+	v := {{.BaseType}}(*q)
+	return &v
+}
+
+func (q *{{.TypeName}}) ValueOrDefault(dft {{.BaseType}}) {{.BaseType}} {
+	if q == nil {
+		return dft
+	}
+	return {{.BaseType}}(*q)
+}
+
+func (q *{{.TypeName}}) Convert(u units.Unit) (*{{.BaseType}}, error) {
+	if q == nil {
+		return nil, nil
+	}
 	u2 := q.BaseUnit().Divide(u)	
 	if !u2.IsScalar() {
-		return 0, fmt.Errorf("cannot convert '%s' to given units '%s'", q.Unit(), u)
+		return nil, fmt.Errorf("cannot convert '%s' to given units '%s'", q.Unit(), u)
 	}
-	return {{.BaseType}}(u2.Scale() * float64(q.Value())), nil
+	v := {{.BaseType}}(u2.Scale() * float64(*q.Value()))
+	return &v, nil
 }
 
-func (q {{.TypeName}}) Unit() units.Unit {
+func (q *{{.TypeName}}) ConvertOrDefault(u units.Unit, dft {{.BaseType}}) (*{{.BaseType}}, error) {
+	if q == nil {
+		return &dft, nil
+	}
+	return q.Convert(u)
+}
+
+func (q *{{.TypeName}}) Unit() units.Unit {
 	return {{.UnitName}}
 }
 
-func (q {{.TypeName}}) BaseUnit() units.Unit {
+func (q *{{.TypeName}}) BaseUnit() units.Unit {
 	return {{.BaseUnitName}}
 }
 
-func (q {{.TypeName}}) Eq(q2 {{.InterfaceName}}) bool {
-	return q.Value() == q2.Value()
+func (q *{{.TypeName}}) Eq(q2 *{{.TypeName}}) bool {
+	if q == nil || q2 == nil {
+		return false
+	}
+	return *q.Value() == *q2.Value()
 }
 
-func (q {{.TypeName}}) Gt(q2 {{.InterfaceName}}) bool {
-	return q.Value() > q2.Value()
+func (q *{{.TypeName}}) Gt(q2 *{{.TypeName}}) bool {
+	if q == nil || q2 == nil {
+		return false
+	}
+	return *q.Value() > *q2.Value()
 }
 
-func (q {{.TypeName}}) GtEq(q2 {{.InterfaceName}}) bool {
-	return q.Value() >= q2.Value()
+func (q *{{.TypeName}}) GtEq(q2 *{{.TypeName}}) bool {
+	if q == nil || q2 == nil {
+		return false
+	}
+	return *q.Value() >= *q2.Value()
 }
 
-func (q {{.TypeName}}) Lt(q2 {{.InterfaceName}}) bool {
-	return q.Value() < q2.Value()
+func (q *{{.TypeName}}) Lt(q2 *{{.TypeName}}) bool {
+	if q == nil || q2 == nil {
+		return false
+	}
+	return *q.Value() < *q2.Value()
 }
 
-func (q {{.TypeName}}) LtEq(q2 {{.InterfaceName}}) bool {
-	return q.Value() <= q2.Value()
+func (q *{{.TypeName}}) LtEq(q2 *{{.TypeName}}) bool {
+	if q == nil || q2 == nil {
+		return false
+	}
+	return *q.Value() <= *q2.Value()
 }
 
-func (q {{.TypeName}}) Between(q1, q2 {{.InterfaceName}}) bool {
+func (q *{{.TypeName}}) Between(q1, q2 *{{.TypeName}}) bool {
+	if q == nil || q1 == nil || q2 == nil {
+		return false
+	}
 	return q.GtEq(q1) && q.LtEq(q2)
 }
 
-func (q {{.TypeName}}) Inside(q1, q2 {{.InterfaceName}}) bool {
+func (q *{{.TypeName}}) Inside(q1, q2 *{{.TypeName}}) bool {
+	if q == nil || q1 == nil || q2 == nil {
+		return false
+	}
 	return q.Gt(q1) && q.Lt(q2)
 }
 
-func (q {{.TypeName}}) Negate() {{.InterfaceName}} {
-	return New{{.InterfaceName}}(-q.Value())
+func (q *{{.TypeName}}) Negate() *{{.TypeName}} {
+	if q == nil {
+		return nil
+	}
+	return {{.PtrConstructor}}(-*q.Value())
 }
 
-func (q {{.TypeName}}) Abs() {{.InterfaceName}} {
-	if q.GtEq({{.ZeroValueName}}) {
+func (q *{{.TypeName}}) Abs() *{{.TypeName}} {
+	if q == nil {
+		return nil
+	}
+	if q.GtEq(&{{.ZeroValueName}}) {
 		return q
 	}
 	return q.Negate()
 }
 
-func (q {{.TypeName}}) Min(q2 {{.InterfaceName}}) {{.InterfaceName}} {
+func (q *{{.TypeName}}) Min(q2 *{{.TypeName}}) *{{.TypeName}} {
+	if q == nil || q2 == nil {
+		return nil
+	}
 	if q.Lt(q2) {
 		return q
 	}
 	return q2
 }
 
-func (q {{.TypeName}}) Max(q2 {{.InterfaceName}}) {{.InterfaceName}} {
+func (q *{{.TypeName}}) Max(q2 *{{.TypeName}}) *{{.TypeName}} {
+	if q == nil || q2 == nil {
+		return nil
+	}
 	if q.Gt(q2) {
 		return q
 	}
@@ -136,8 +179,11 @@ func (q {{.TypeName}}) Max(q2 {{.InterfaceName}}) {{.InterfaceName}} {
 }
 
 {{range $op := .Operations}}
-func (q {{$q.TypeName}}) {{$op.FunctionSpec}} {
-	return New{{$op.Result.Name}}(q.Value() {{$op.Operator}} val.Value())
+func (q *{{$q.TypeName}}) {{$op.FunctionSpec}} {
+	if q == nil || q2 == nil {
+		return nil
+	}
+	return {{$op.Result.PtrConstructor}}(*q.Value() {{$op.Operator}} *q2.Value())
 }
 {{end}}
 {{end}}

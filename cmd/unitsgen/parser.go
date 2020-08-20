@@ -31,11 +31,15 @@ type (
 )
 
 func (q *Quantity) TypeName() string {
-	return "_" + q.Name
+	return q.Name
 }
 
-func (q *Quantity) InterfaceName() string {
-	return q.Name
+func (q *Quantity) Constructor() string {
+	return "New" + q.Name
+}
+
+func (q *Quantity) PtrConstructor() string {
+	return q.Constructor() + "Ptr"
 }
 
 func (q *Quantity) UnitName() string {
@@ -55,7 +59,7 @@ func (o *Operation) FunctionSpec() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s%s(val %s) %s", op, o.Param.Name, o.Param.Name, o.Result.Name), nil
+	return fmt.Sprintf("%s%s(q2 *%s) *%s", op, o.Param.Name, o.Param.Name, o.Result.Name), nil
 }
 
 func operatorName(op string) (string, error) {
