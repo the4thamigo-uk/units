@@ -1,26 +1,26 @@
 package example;
 unit (
-  m;
-  s;
-  mps = m / s;
-  h = s * 3600;
-  km = 1000 * m;
-  kmph = km / h;
-  nm = 1852 * m;
-  kn = nm / h;
-  bf;
+  M;
+  S;
+  MpS = M / S;
+  H = S * 3600;
+  KM = 1000 * M;
+  KMpH = KM / H;
+  NM = 1852 * M;
+  KN = NM / H;
+  BF;
 )
 
 quantity (
   Scalar() float64;
-  Length(m) float64;
-  Area(m * m) float64;
-  Time(s) float64;
-  Frequency(s^-1) float64;
-  Distance(km) float64;
-  Duration(h) float64;
-  Speed(km/h) float64;
-  Beaufort(bf) int;
+  Length(M) float64;
+  Area(M^2) float64;
+  Time(S) float64;
+  Frequency(1 / S) float64;
+  Distance(KM) float64;
+  Duration(H) float64;
+  Speed(KM/H) float64;
+  Beaufort(BF) int;
 )
 
 operation (
