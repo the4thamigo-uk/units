@@ -1,6 +1,8 @@
 package example
 
 import (
+	"encoding/json"
+	"github.com/go-playground/validator"
 	"github.com/stretchr/testify/require"
 	"testing"
 )
@@ -222,6 +224,39 @@ func TestLength_DivideLength(t *testing.T) {
 	require.Nil(t, q1.DivideLength(n))
 	require.Nil(t, q1.DivideLength(z))
 	require.Equal(t, s, q1.DivideLength(q2))
+}
+
+func TestLength_Marshal(t *testing.T) {
+
+	type X struct {
+		Mandatory Length
+		Optional  *Length
+		Null      *Length
+	}
+	x := X{
+		Mandatory: NewLength(1),
+		Optional:  NewLengthPtr(2),
+	}
+	b, err := json.Marshal(x)
+	require.NoError(t, err)
+
+	var y X
+	err = json.Unmarshal(b, &y)
+	require.NoError(t, err)
+
+	require.Equal(t, x, y)
+}
+
+func TestLength_GoPlaygroundValidation(t *testing.T) {
+	type X struct {
+		Mandatory float64 `validate:"gt=0"`
+	}
+	validate := validator.New()
+
+	err := validate.Struct(X{Mandatory: 1})
+	require.NoError(t, err)
+	err = validate.Struct(X{Mandatory: -1})
+	require.Error(t, err)
 }
 
 func TestLength_DivideTime(t *testing.T) {

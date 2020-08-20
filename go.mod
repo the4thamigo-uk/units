@@ -13,6 +13,8 @@ require (
 	github.com/fatih/gomodifytags v1.6.0 // indirect
 	github.com/fatih/motion v1.1.0 // indirect
 	github.com/fatih/structtag v1.2.0 // indirect
+	github.com/go-playground/universal-translator v0.17.0 // indirect
+	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/josharian/impl v1.0.0 // indirect
 	github.com/jstemmer/gotags v1.4.1 // indirect
@@ -20,6 +22,7 @@ require (
 	github.com/kisielk/errcheck v1.4.0 // indirect
 	github.com/klauspost/asmfmt v1.2.1 // indirect
 	github.com/koron/iferr v0.0.0-20180615142939-bb332a3b1d91 // indirect
+	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/mdempsky/gocode v0.0.0-20200405233807-4acdcbdea79d // indirect
 	github.com/nicksnyder/go-i18n v1.10.1 // indirect
 	github.com/openlyinc/pointy v1.1.2
