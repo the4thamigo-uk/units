@@ -25,6 +25,9 @@ quantity (
 
 operation (
   Area = Length * Length;
+  Scalar = Length / Length;
+  Length = Length + Length;
+  Length = Length - Length;
   Length = Length * Scalar;
   Time = Time * Scalar;
   Speed = Distance / Duration;

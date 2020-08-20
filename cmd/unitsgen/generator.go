@@ -98,6 +98,10 @@ func (q *{{.TypeName}}) BaseUnit() units.Unit {
 	return {{.BaseUnitName}}
 }
 
+func (q *{{.TypeName}}) IsZero() bool {
+	return q.Eq(&{{.ZeroValueName}})
+}
+
 func (q *{{.TypeName}}) Eq(q2 *{{.TypeName}}) bool {
 	if q == nil || q2 == nil {
 		return false
@@ -189,6 +193,11 @@ func (q *{{$q.TypeName}}) {{$op.FunctionSpec}} {
 	if q == nil || q2 == nil {
 		return nil
 	}
+	{{if eq $op.Operator "/"}}
+	if q2.IsZero() {
+		return nil
+	}
+	{{end}}
 	return {{$op.Result.PtrConstructor}}(*q.Value() {{$op.Operator}} *q2.Value())
 }
 {{end}}

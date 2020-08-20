@@ -124,6 +124,10 @@ func (q *Area) BaseUnit() units.Unit {
 	return _base_unit_Area
 }
 
+func (q *Area) IsZero() bool {
+	return q.Eq(&_zero_value_Area)
+}
+
 func (q *Area) Eq(q2 *Area) bool {
 	if q == nil || q2 == nil {
 		return false
@@ -266,6 +270,10 @@ func (q *Beaufort) Unit() units.Unit {
 
 func (q *Beaufort) BaseUnit() units.Unit {
 	return _base_unit_Beaufort
+}
+
+func (q *Beaufort) IsZero() bool {
+	return q.Eq(&_zero_value_Beaufort)
 }
 
 func (q *Beaufort) Eq(q2 *Beaufort) bool {
@@ -412,6 +420,10 @@ func (q *Distance) BaseUnit() units.Unit {
 	return _base_unit_Distance
 }
 
+func (q *Distance) IsZero() bool {
+	return q.Eq(&_zero_value_Distance)
+}
+
 func (q *Distance) Eq(q2 *Distance) bool {
 	if q == nil || q2 == nil {
 		return false
@@ -502,6 +514,11 @@ func (q *Distance) DivideDuration(q2 *Duration) *Speed {
 	if q == nil || q2 == nil {
 		return nil
 	}
+
+	if q2.IsZero() {
+		return nil
+	}
+
 	return NewSpeedPtr(*q.Value() / *q2.Value())
 }
 
@@ -561,6 +578,10 @@ func (q *Duration) Unit() units.Unit {
 
 func (q *Duration) BaseUnit() units.Unit {
 	return _base_unit_Duration
+}
+
+func (q *Duration) IsZero() bool {
+	return q.Eq(&_zero_value_Duration)
 }
 
 func (q *Duration) Eq(q2 *Duration) bool {
@@ -707,6 +728,10 @@ func (q *Frequency) BaseUnit() units.Unit {
 	return _base_unit_Frequency
 }
 
+func (q *Frequency) IsZero() bool {
+	return q.Eq(&_zero_value_Frequency)
+}
+
 func (q *Frequency) Eq(q2 *Frequency) bool {
 	if q == nil || q2 == nil {
 		return false
@@ -851,6 +876,10 @@ func (q *Length) BaseUnit() units.Unit {
 	return _base_unit_Length
 }
 
+func (q *Length) IsZero() bool {
+	return q.Eq(&_zero_value_Length)
+}
+
 func (q *Length) Eq(q2 *Length) bool {
 	if q == nil || q2 == nil {
 		return false
@@ -941,13 +970,43 @@ func (q *Length) MultiplyLength(q2 *Length) *Area {
 	if q == nil || q2 == nil {
 		return nil
 	}
+
 	return NewAreaPtr(*q.Value() * *q2.Value())
+}
+
+func (q *Length) DivideLength(q2 *Length) *Scalar {
+	if q == nil || q2 == nil {
+		return nil
+	}
+
+	if q2.IsZero() {
+		return nil
+	}
+
+	return NewScalarPtr(*q.Value() / *q2.Value())
+}
+
+func (q *Length) AddLength(q2 *Length) *Length {
+	if q == nil || q2 == nil {
+		return nil
+	}
+
+	return NewLengthPtr(*q.Value() + *q2.Value())
+}
+
+func (q *Length) SubtractLength(q2 *Length) *Length {
+	if q == nil || q2 == nil {
+		return nil
+	}
+
+	return NewLengthPtr(*q.Value() - *q2.Value())
 }
 
 func (q *Length) MultiplyScalar(q2 *Scalar) *Length {
 	if q == nil || q2 == nil {
 		return nil
 	}
+
 	return NewLengthPtr(*q.Value() * *q2.Value())
 }
 
@@ -1007,6 +1066,10 @@ func (q *Scalar) Unit() units.Unit {
 
 func (q *Scalar) BaseUnit() units.Unit {
 	return _base_unit_Scalar
+}
+
+func (q *Scalar) IsZero() bool {
+	return q.Eq(&_zero_value_Scalar)
 }
 
 func (q *Scalar) Eq(q2 *Scalar) bool {
@@ -1099,6 +1162,11 @@ func (q *Scalar) DivideTime(q2 *Time) *Frequency {
 	if q == nil || q2 == nil {
 		return nil
 	}
+
+	if q2.IsZero() {
+		return nil
+	}
+
 	return NewFrequencyPtr(*q.Value() / *q2.Value())
 }
 
@@ -1158,6 +1226,10 @@ func (q *Speed) Unit() units.Unit {
 
 func (q *Speed) BaseUnit() units.Unit {
 	return _base_unit_Speed
+}
+
+func (q *Speed) IsZero() bool {
+	return q.Eq(&_zero_value_Speed)
 }
 
 func (q *Speed) Eq(q2 *Speed) bool {
@@ -1250,6 +1322,7 @@ func (q *Speed) MultiplyDuration(q2 *Duration) *Distance {
 	if q == nil || q2 == nil {
 		return nil
 	}
+
 	return NewDistancePtr(*q.Value() * *q2.Value())
 }
 
@@ -1309,6 +1382,10 @@ func (q *Time) Unit() units.Unit {
 
 func (q *Time) BaseUnit() units.Unit {
 	return _base_unit_Time
+}
+
+func (q *Time) IsZero() bool {
+	return q.Eq(&_zero_value_Time)
 }
 
 func (q *Time) Eq(q2 *Time) bool {
@@ -1401,5 +1478,6 @@ func (q *Time) MultiplyScalar(q2 *Scalar) *Time {
 	if q == nil || q2 == nil {
 		return nil
 	}
+
 	return NewTimePtr(*q.Value() * *q2.Value())
 }

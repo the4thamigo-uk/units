@@ -33,6 +33,15 @@ func TestLength_Value(t *testing.T) {
 	require.Equal(t, float64(1), q.ValueOrDefault(0))
 }
 
+func TestLength_IsZero(t *testing.T) {
+	var n *Length
+	q1 := NewLengthPtr(0)
+	q2 := NewLengthPtr(1)
+	require.False(t, n.IsZero())
+	require.True(t, q1.IsZero())
+	require.False(t, q2.IsZero())
+}
+
 func TestLength_Eq(t *testing.T) {
 	var n *Length
 	q := NewLengthPtr(1)
@@ -162,15 +171,57 @@ func TestLength_Max(t *testing.T) {
 	require.Equal(t, u, u.Max(l))
 }
 
+func TestLength_AddLength(t *testing.T) {
+	var n *Length
+	q1 := NewLengthPtr(1)
+	q2 := NewLengthPtr(2)
+	z := NewLengthPtr(0)
+	r := NewLengthPtr(3)
+	require.Nil(t, n.AddLength(n))
+	require.Nil(t, n.AddLength(q1))
+	require.Nil(t, q1.AddLength(n))
+	require.Equal(t, q1, q1.AddLength(z))
+	require.Equal(t, r, q1.AddLength(q2))
+}
+
+func TestLength_SubtractLength(t *testing.T) {
+	var n *Length
+	q1 := NewLengthPtr(1)
+	q2 := NewLengthPtr(2)
+	z := NewLengthPtr(0)
+	r := NewLengthPtr(-1)
+	require.Nil(t, n.SubtractLength(n))
+	require.Nil(t, n.SubtractLength(q1))
+	require.Nil(t, q1.SubtractLength(n))
+	require.Equal(t, q1, q1.SubtractLength(z))
+	require.Equal(t, r, q1.SubtractLength(q2))
+}
+
 func TestLength_MultiplyLength(t *testing.T) {
 	var n *Length
 	q1 := NewLengthPtr(2)
 	q2 := NewLengthPtr(4)
+	z := NewLengthPtr(0)
 	a := NewAreaPtr(8)
+	za := NewAreaPtr(0)
 	require.Nil(t, n.MultiplyLength(n))
 	require.Nil(t, n.MultiplyLength(q1))
 	require.Nil(t, q1.MultiplyLength(n))
+	require.Equal(t, za, q1.MultiplyLength(z))
 	require.Equal(t, a, q1.MultiplyLength(q2))
+}
+
+func TestLength_DivideLength(t *testing.T) {
+	var n *Length
+	q1 := NewLengthPtr(4)
+	q2 := NewLengthPtr(2)
+	z := NewLengthPtr(0)
+	s := NewScalarPtr(2)
+	require.Nil(t, n.DivideLength(n))
+	require.Nil(t, n.DivideLength(q1))
+	require.Nil(t, q1.DivideLength(n))
+	require.Nil(t, q1.DivideLength(z))
+	require.Equal(t, s, q1.DivideLength(q2))
 }
 
 func TestLength_DivideTime(t *testing.T) {
