@@ -194,7 +194,7 @@ func (q *{{.TypeName}}) Max(q2 *{{.TypeName}}) *{{.TypeName}} {
 }
 
 {{range $op := .Operations}}
-func (q *{{$q.TypeName}}) {{$op.FunctionSpec}} {
+func (q *{{$q.TypeName}}) {{$op.FunctionSpec "q2"}} {
 	if q == nil || q2 == nil {
 		return nil
 	}
@@ -203,7 +203,7 @@ func (q *{{$q.TypeName}}) {{$op.FunctionSpec}} {
 		return nil
 	}
 	{{end}}
-	return {{$op.Result.PtrConstructor}}({{$op.FunctionImpl "*q.Value()" "*q2.Value()" }})
+	return {{$op.Result.PtrConstructor}}({{$op.FunctionImpl "q" "q2"}})
 }
 {{end}}
 {{end}}

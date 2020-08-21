@@ -26,7 +26,8 @@ type (
 	Operation struct {
 		Result   *Quantity
 		Operator string
-		Param    *Quantity
+		Left     *Quantity
+		Right    *Quantity
 	}
 )
 
@@ -62,20 +63,33 @@ func (q *Quantity) BaseTypeIsFloat() bool {
 	return q.BaseType == "float32" || q.BaseType == "float64"
 }
 
-func (o *Operation) FunctionSpec() (string, error) {
+func (o *Operation) FunctionSpec(prm string) (string, error) {
 	op, err := operatorName(o.Operator)
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s%s(q2 *%s) *%s", op, o.Param.Name, o.Param.Name, o.Result.Name), nil
+	return fmt.Sprintf("%s%s(%s *%s) *%s", op, o.Right.Name, prm, o.Right.Name, o.Result.Name), nil
 }
 
 func (o *Operation) FunctionImpl(left, right string) (string, error) {
 	op := o.Operator
-	if op == "%" && (o.Param.BaseTypeIsFloat() || o.Result.BaseTypeIsFloat()) {
+	left = fmt.Sprintf("*%s.Value()", left)
+	right = fmt.Sprintf("*%s.Value()", right)
+	if op == "%" && (o.Left.BaseTypeIsFloat() || o.Right.BaseTypeIsFloat()) {
 		return fmt.Sprintf("%s(math.Mod(float64(%s), float64(%s)))", o.Result.BaseType, left, right), nil
 	}
-	return fmt.Sprintf("%s %s %s", left, o.Operator, right), nil
+
+	if o.Left.BaseType != o.Right.BaseType {
+		right = fmt.Sprintf("%s(%s)", o.Left.BaseType, right)
+	}
+
+	impl := fmt.Sprintf("%s %s %s", left, o.Operator, right)
+
+	if o.Result.BaseType != o.Left.BaseType {
+		impl = fmt.Sprintf("%s(%s)", o.Result.BaseType, impl)
+	}
+
+	return impl, nil
 }
 
 func operatorName(op string) (string, error) {
@@ -186,7 +200,8 @@ func analyse(ast *AST) (*Semantics, error) {
 		left.Operations = append(left.Operations, &Operation{
 			Result:   result,
 			Operator: od.Operator,
-			Param:    right,
+			Left:     left,
+			Right:    right,
 		})
 	}
 	return &s, nil
