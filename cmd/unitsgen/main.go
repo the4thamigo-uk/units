@@ -33,7 +33,7 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	s, err := analyse(ast)
+	s, err := buildModel(ast)
 	if err != nil {
 		return err
 	}

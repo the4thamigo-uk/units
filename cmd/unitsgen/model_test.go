@@ -38,7 +38,7 @@ func TestParser(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, f)
 
-	s, err := analyse(f)
+	s, err := buildModel(f)
 	require.NoError(t, err)
 
 	require.Len(t, s.Quantities["Scalar"].Operations, 1)

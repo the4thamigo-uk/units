@@ -209,7 +209,7 @@ func (q *{{$q.TypeName}}) {{$op.FunctionSpec "q2"}} {
 {{end}}
 `))
 
-func generate(s *Semantics) (string, error) {
+func generate(s *Model) (string, error) {
 	var b bytes.Buffer
 	err := tmpl.Execute(&b, s)
 	if err != nil {

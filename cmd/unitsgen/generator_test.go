@@ -10,7 +10,7 @@ func TestGenerator(t *testing.T) {
 	ast, err := parse(testCfg)
 	require.NoError(t, err)
 
-	s, err := analyse(ast)
+	s, err := buildModel(ast)
 	require.NoError(t, err)
 
 	_, err = generate(s)

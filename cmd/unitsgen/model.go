@@ -6,7 +6,7 @@ import (
 )
 
 type (
-	Semantics struct {
+	Model struct {
 		Package    string
 		Units      UnitsMap
 		Quantities QuantitiesMap
@@ -120,8 +120,8 @@ func evalQuantity(qd *QuantityDefinition) (*Quantity, error) {
 	}, nil
 }
 
-func analyse(ast *AST) (*Semantics, error) {
-	s := Semantics{
+func buildModel(ast *AST) (*Model, error) {
+	s := Model{
 		Package:    ast.Package,
 		Units:      UnitsMap{},
 		Quantities: QuantitiesMap{},
