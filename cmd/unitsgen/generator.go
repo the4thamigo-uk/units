@@ -13,8 +13,11 @@ package {{.Package}}
 import (
 	"github.com/the4thamigo-uk/units"
 	"fmt"
-	math "math"
+	"math"
 )
+
+ // ensure we use math package to avoid unused imports error for some code generations
+var _ = math.Abs(0)
 
 // units
 var (
