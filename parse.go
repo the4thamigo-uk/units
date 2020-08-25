@@ -49,7 +49,7 @@ func ParseInto(out interface{}, s string) error {
 		Ident = (alpha | "_") { "_" | alpha | digit } .
 		Number = [ "-" | "+" ] ("." | digit) { "." | digit } [ ("e"|"E") Number] .
 		Comment = "/" "/" { "\u0000"…"\uffff"-"\n" } .
-		Punct = ";" | "+" | "-" | "*" | "/" | "^" | "%" | "\"" | "(" | ")" | "=" .
+		Punct = ";" | "+" | "-" | ">" | "*" | "/" | "^" | "%" | "\"" | "(" | ")" | "=" .
 		Whitespace = " " | "\t" | "\n" | "\r" .
 		alpha = "a"…"z" | "A"…"Z" .
 		digit = "0"…"9" .

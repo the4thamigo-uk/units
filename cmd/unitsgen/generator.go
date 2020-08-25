@@ -44,6 +44,12 @@ var (
 {{end}}
 )
 
+// declared conversions between quantities
+var (
+{{range $cv := .Conversions}}{{$cv.ConverterName}} = units.MustConvert(units.NewConverter({{$cv.Left.BaseUnitName}},{{$cv.Right.BaseUnitName}}))
+{{end}}
+)
+
 {{range $q := .Quantities}}
 func {{.Constructor}}(val {{.BaseType}}) {{.TypeName}} {
 	return {{.TypeName}}(val)
@@ -194,7 +200,7 @@ func (q *{{.TypeName}}) Max(q2 *{{.TypeName}}) *{{.TypeName}} {
 }
 
 {{range $op := .Operations}}
-func (q *{{$q.TypeName}}) {{$op.FunctionSpec "q2"}} {
+func (q *{{$q.TypeName}}) {{$op.OperationSpec "q2"}} {
 	if q == nil || q2 == nil {
 		return nil
 	}
@@ -203,9 +209,19 @@ func (q *{{$q.TypeName}}) {{$op.FunctionSpec "q2"}} {
 		return nil
 	}
 	{{end}}
-	return {{$op.Result.PtrConstructor}}({{$op.FunctionImpl "q" "q2"}})
+	return {{$op.Result.PtrConstructor}}({{$op.OperationImpl "q" "q2"}})
 }
 {{end}}
+
+{{range $cv := .Conversions}}
+func (q *{{$q.TypeName}}) To{{$cv.Right.ProperName}}() *{{$cv.Right.Name}} {
+	if q == nil {
+		return nil
+	}
+	return {{$cv.Right.FromPtrConstructor}}({{$cv.ConverterName}}.ConvertPtr(q.Value()))
+}
+{{end}}
+
 {{end}}
 `))
 

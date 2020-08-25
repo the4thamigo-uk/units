@@ -301,3 +301,15 @@ func TestLength_DivideTime(t *testing.T) {
 	require.NoError(t, err)
 	t.Logf("%v (%v)", s_mps, example.MpS)
 }
+
+func TestFrequency_Conversion(t *testing.T) {
+	f := example.NewFrequency(1)
+	r := f.ToRPM()
+	require.Equal(t, example.NewRPMPtr(60), r)
+}
+
+func TestRPM_Conversion(t *testing.T) {
+	r := example.NewRPM(60)
+	f := r.ToFrequency()
+	require.Equal(t, example.NewFrequencyPtr(1), f)
+}

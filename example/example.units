@@ -11,6 +11,7 @@ unit (
   NM = 1852 * M;
   KN = NM / H;
   BF;
+  Min = 60*S;
 )
 
 // quantities are defined with a specified unit and a base type
@@ -20,6 +21,7 @@ quantity (
   Area(M^2) float64;
   Time(S) float64;
   Frequency(1 / S) float64;
+  RPM(1 / Min) float64;
   Distance(KM) float64;
   Duration(H) float64;
   Speed(KM/H) float64;
@@ -39,4 +41,9 @@ operation (
   Speed = Distance / Duration;
   Distance = Speed * Duration;
   Frequency = Scalar / Time;
+)
+
+conversion (
+  Frequency -> RPM;
+  RPM -> Frequency;
 )

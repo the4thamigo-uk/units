@@ -7,12 +7,13 @@ import (
 
 type (
 	AST struct {
-		Pos        lexer.Position
-		Tok        lexer.Token
-		Package    string                 `"package" @Ident ";"`
-		Units      []*UnitDefinition      `"unit" "(" { @@ ";" } ")"`
-		Quantities []*QuantityDefinition  `"quantity" "(" { @@ ";" } ")"`
-		Operations []*OperationDefinition `"operation" "(" { @@ ";" } ")"`
+		Pos         lexer.Position
+		Tok         lexer.Token
+		Package     string                  `"package" @Ident ";"`
+		Units       []*UnitDefinition       `"unit" "(" { @@ ";" } ")"`
+		Quantities  []*QuantityDefinition   `"quantity" "(" { @@ ";" } ")"`
+		Operations  []*OperationDefinition  `"operation" "(" { @@ ";" } ")"`
+		Conversions []*ConversionDefinition `"conversion" "(" { @@ ";" } ")"`
 	}
 
 	UnitDefinition struct {
@@ -49,6 +50,14 @@ type (
 		Result   string `@Ident "="`
 		Left     string `@Ident`
 		Operator string `@("*" | "/" | "+" | "-" | "%")`
+		Right    string `@Ident`
+	}
+
+	ConversionDefinition struct {
+		Pos      lexer.Position
+		Tok      lexer.Token
+		Left     string `@Ident`
+		Operator string `@("-" ">")`
 		Right    string `@Ident`
 	}
 )

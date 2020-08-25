@@ -17,6 +17,7 @@ var (
 	KMpH = units.MustParse(units.Parse("2.77777777777777790e-01*M*S^-1"))
 	KN   = units.MustParse(units.Parse("5.14444444444444482e-01*M*S^-1"))
 	M    = units.MustParse(units.Parse("M"))
+	Min  = units.MustParse(units.Parse("6.00000000000000000e+01*S"))
 	MpS  = units.MustParse(units.Parse("M*S^-1"))
 	NM   = units.MustParse(units.Parse("1.85200000000000000e+03*M"))
 	S    = units.MustParse(units.Parse("S"))
@@ -30,6 +31,7 @@ type (
 	Duration  float64
 	Frequency float64
 	Length    float64
+	RPM       float64
 	Scalar    float64
 	Speed     float64
 	Time      float64
@@ -49,6 +51,8 @@ var (
 	_base_unit_Frequency = units.MustParse(units.Parse("S^-1"))
 	_unit_Length         = units.MustParse(units.Parse("M"))
 	_base_unit_Length    = units.MustParse(units.Parse("M"))
+	_unit_RPM            = units.MustParse(units.Parse("Min^-1"))
+	_base_unit_RPM       = units.MustParse(units.Parse("1.66666666666666664e-02*S^-1"))
 	_unit_Scalar         = units.MustParse(units.Parse(""))
 	_base_unit_Scalar    = units.MustParse(units.Parse(""))
 	_unit_Speed          = units.MustParse(units.Parse("H^-1*KM"))
@@ -65,9 +69,16 @@ var (
 	_zero_value_Duration  = NewDuration(0)
 	_zero_value_Frequency = NewFrequency(0)
 	_zero_value_Length    = NewLength(0)
+	_zero_value_RPM       = NewRPM(0)
 	_zero_value_Scalar    = NewScalar(0)
 	_zero_value_Speed     = NewSpeed(0)
 	_zero_value_Time      = NewTime(0)
+)
+
+// declared conversions between quantities
+var (
+	_convertFrequencyToRPM = units.MustConvert(units.NewConverter(_base_unit_Frequency, _base_unit_RPM))
+	_convertRPMToFrequency = units.MustConvert(units.NewConverter(_base_unit_RPM, _base_unit_Frequency))
 )
 
 func NewArea(val float64) Area {
@@ -834,6 +845,13 @@ func (q *Frequency) Max(q2 *Frequency) *Frequency {
 	return q2
 }
 
+func (q *Frequency) ToRPM() *RPM {
+	if q == nil {
+		return nil
+	}
+	return NewRPMFromPtr(_convertFrequencyToRPM.ConvertPtr(q.Value()))
+}
+
 func NewLength(val float64) Length {
 	return Length(val)
 }
@@ -1036,6 +1054,161 @@ func (q *Length) MultiplyScalar(q2 *Scalar) *Length {
 	}
 
 	return NewLengthPtr(*q.Value() * *q2.Value())
+}
+
+func NewRPM(val float64) RPM {
+	return RPM(val)
+}
+
+func NewRPMPtr(val float64) *RPM {
+	q := NewRPM(val)
+	return &q
+}
+
+func NewRPMFromPtr(val *float64) *RPM {
+	if val == nil {
+		return nil
+	}
+	return NewRPMPtr(*val)
+}
+
+func (q *RPM) Value() *float64 {
+	if q == nil {
+		return nil
+	}
+	v := float64(*q)
+	return &v
+}
+
+func (q *RPM) ValueOrDefault(dft float64) float64 {
+	if q == nil {
+		return dft
+	}
+	return float64(*q)
+}
+
+func (q *RPM) Convert(u units.Unit) (*float64, error) {
+	if q == nil {
+		return nil, nil
+	}
+	u2 := q.BaseUnit().Divide(u)
+	if !u2.IsScalar() {
+		return nil, fmt.Errorf("cannot convert '%s' to given units '%s'", q.Unit(), u)
+	}
+	v := float64(u2.Scale() * float64(*q.Value()))
+	return &v, nil
+}
+
+func (q *RPM) ConvertOrDefault(u units.Unit, dft float64) (*float64, error) {
+	if q == nil {
+		return &dft, nil
+	}
+	return q.Convert(u)
+}
+
+func (q *RPM) Unit() units.Unit {
+	return _unit_RPM
+}
+
+func (q *RPM) BaseUnit() units.Unit {
+	return _base_unit_RPM
+}
+
+func (q *RPM) IsZero() bool {
+	return q.Eq(&_zero_value_RPM)
+}
+
+func (q *RPM) Eq(q2 *RPM) bool {
+	if q == nil || q2 == nil {
+		return false
+	}
+	return *q.Value() == *q2.Value()
+}
+
+func (q *RPM) Gt(q2 *RPM) bool {
+	if q == nil || q2 == nil {
+		return false
+	}
+	return *q.Value() > *q2.Value()
+}
+
+func (q *RPM) GtEq(q2 *RPM) bool {
+	if q == nil || q2 == nil {
+		return false
+	}
+	return *q.Value() >= *q2.Value()
+}
+
+func (q *RPM) Lt(q2 *RPM) bool {
+	if q == nil || q2 == nil {
+		return false
+	}
+	return *q.Value() < *q2.Value()
+}
+
+func (q *RPM) LtEq(q2 *RPM) bool {
+	if q == nil || q2 == nil {
+		return false
+	}
+	return *q.Value() <= *q2.Value()
+}
+
+func (q *RPM) Between(q1, q2 *RPM) bool {
+	if q == nil || q1 == nil || q2 == nil {
+		return false
+	}
+	return q.GtEq(q1) && q.LtEq(q2)
+}
+
+func (q *RPM) Inside(q1, q2 *RPM) bool {
+	if q == nil || q1 == nil || q2 == nil {
+		return false
+	}
+	return q.Gt(q1) && q.Lt(q2)
+}
+
+func (q *RPM) Negate() *RPM {
+	if q == nil {
+		return nil
+	}
+	return NewRPMPtr(-*q.Value())
+}
+
+func (q *RPM) Abs() *RPM {
+	if q == nil {
+		return nil
+	}
+	if q.GtEq(&_zero_value_RPM) {
+		return q
+	}
+	return q.Negate()
+}
+
+func (q *RPM) Min(q2 *RPM) *RPM {
+	if q == nil || q2 == nil {
+		return nil
+	}
+	if q.Lt(q2) {
+		return q
+	}
+	return q2
+}
+
+func (q *RPM) Max(q2 *RPM) *RPM {
+	if q == nil || q2 == nil {
+		return nil
+	}
+	if q.Gt(q2) {
+		return q
+	}
+	return q2
+}
+
+func (q *RPM) ToFrequency() *Frequency {
+	if q == nil {
+		return nil
+	}
+	return NewFrequencyFromPtr(_convertRPMToFrequency.ConvertPtr(q.Value()))
 }
 
 func NewScalar(val float64) Scalar {

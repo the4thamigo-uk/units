@@ -20,7 +20,7 @@ func NewConverter(from Unit, to Unit) (Converter, error) {
 	return converter(scale), nil
 }
 
-func MustConvert(c *Converter, err error) *Converter {
+func MustConvert(c Converter, err error) Converter {
 	if err != nil {
 		panic(err.Error())
 	}

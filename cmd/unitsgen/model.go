@@ -3,24 +3,27 @@ package main
 import (
 	"fmt"
 	"github.com/the4thamigo-uk/units"
+	"unicode"
 )
 
 type (
 	Model struct {
-		Package    string
-		Units      UnitsMap
-		Quantities QuantitiesMap
+		Package     string
+		Units       UnitsMap
+		Quantities  QuantitiesMap
+		Conversions []*Conversion
 	}
 
 	UnitsMap      map[string]units.Unit
 	QuantitiesMap map[string]*Quantity
 
 	Quantity struct {
-		Name       string
-		Unit       units.Unit
-		BaseUnit   units.Unit
-		Operations []*Operation
-		BaseType   string
+		Name        string
+		Unit        units.Unit
+		BaseUnit    units.Unit
+		Operations  []*Operation
+		Conversions []*Conversion
+		BaseType    string
 	}
 
 	Operation struct {
@@ -29,7 +32,19 @@ type (
 		Left     *Quantity
 		Right    *Quantity
 	}
+
+	Conversion struct {
+		Left     *Quantity
+		Operator string
+		Right    *Quantity
+	}
 )
+
+func (q *Quantity) ProperName() string {
+	cc := []rune(q.Name)
+	cc[0] = unicode.ToUpper(cc[0])
+	return string(cc)
+}
 
 func (q *Quantity) TypeName() string {
 	return q.Name
@@ -63,7 +78,7 @@ func (q *Quantity) BaseTypeIsFloat() bool {
 	return q.BaseType == "float32" || q.BaseType == "float64"
 }
 
-func (o *Operation) FunctionSpec(prm string) (string, error) {
+func (o *Operation) OperationSpec(prm string) (string, error) {
 	op, err := operatorName(o.Operator)
 	if err != nil {
 		return "", err
@@ -71,7 +86,7 @@ func (o *Operation) FunctionSpec(prm string) (string, error) {
 	return fmt.Sprintf("%s%s(%s *%s) *%s", op, o.Right.Name, prm, o.Right.Name, o.Result.Name), nil
 }
 
-func (o *Operation) FunctionImpl(left, right string) (string, error) {
+func (o *Operation) OperationImpl(left, right string) (string, error) {
 	op := o.Operator
 	left = fmt.Sprintf("*%s.Value()", left)
 	right = fmt.Sprintf("*%s.Value()", right)
@@ -90,6 +105,10 @@ func (o *Operation) FunctionImpl(left, right string) (string, error) {
 	}
 
 	return impl, nil
+}
+
+func (c *Conversion) ConverterName() string {
+	return fmt.Sprintf("_convert%sTo%s", c.Left.ProperName(), c.Right.ProperName())
 }
 
 func operatorName(op string) (string, error) {
@@ -204,5 +223,25 @@ func buildModel(ast *AST) (*Model, error) {
 			Right:    right,
 		})
 	}
+
+	for _, cd := range ast.Conversions {
+		left, ok := s.Quantities[cd.Left]
+		if !ok {
+			return nil, fmt.Errorf("%s: the left quantity '%s' is not defined for the conversion", cd.Pos, cd.Left)
+		}
+		right, ok := s.Quantities[cd.Right]
+		if !ok {
+			return nil, fmt.Errorf("%s: the right quantity '%s' is not defined for the conversion", cd.Pos, cd.Right)
+		}
+		c := &Conversion{
+			Left:     left,
+			Operator: cd.Operator,
+			Right:    right,
+		}
+		left.Conversions = append(left.Conversions, c)
+		s.Conversions = append(s.Conversions, c)
+
+	}
+
 	return &s, nil
 }

@@ -11,6 +11,7 @@ unit (
 	s;
 	h = s * 3600;
 	km = 1000 * m;
+	min = 60*s;
 )
 
 // this is a comment
@@ -20,6 +21,7 @@ quantity (
   Area(m * m) float64;
   Time(s) float64;
 	Frequency(s^-1) float64;
+	RPM(min^-1) float64;
 	Distance(km) float64;
 	Duration(h) float64;
   Speed(km / h) float64;
@@ -32,7 +34,12 @@ operation (
   Speed = Distance / Duration;
   Distance = Speed * Duration;
   Frequency = Scalar / Time;
-)`
+)
+
+conversion (
+	RPM -> Frequency;
+)
+`
 
 func TestParser(t *testing.T) {
 	f, err := parse(testCfg)
