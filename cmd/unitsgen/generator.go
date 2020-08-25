@@ -21,7 +21,7 @@ var _ = math.Abs(0)
 
 // units
 var (
-	{{range $n, $u := .Units}}{{$n}} = units.Must(units.Parse("{{$u.String}}"))
+	{{range $n, $u := .Units}}{{$n}} = units.MustParse(units.Parse("{{$u.String}}"))
 	{{end}}
 )
 
@@ -33,8 +33,8 @@ type (
 
 // quantity units
 var (
-{{range .Quantities}}{{.UnitName}} = units.Must(units.Parse("{{.Unit.String}}"))
-{{.BaseUnitName}} = units.Must(units.Parse("{{.BaseUnit.String}}"))
+{{range .Quantities}}{{.UnitName}} = units.MustParse(units.Parse("{{.Unit.String}}"))
+{{.BaseUnitName}} = units.MustParse(units.Parse("{{.BaseUnit.String}}"))
 {{end}}
 )
 

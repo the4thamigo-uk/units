@@ -66,7 +66,7 @@ func ParseInto(out interface{}, s string) error {
 	return parser.ParseString(s, out)
 }
 
-func Must(u Unit, err error) Unit {
+func MustParse(u Unit, err error) Unit {
 	if err != nil {
 		panic(err.Error())
 	}
