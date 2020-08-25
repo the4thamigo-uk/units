@@ -48,15 +48,16 @@ func ParseInto(out interface{}, s string) error {
 	lex := lexer.Must(ebnf.New(`
 		Ident = (alpha | "_") { "_" | alpha | digit } .
 		Number = [ "-" | "+" ] ("." | digit) { "." | digit } [ ("e"|"E") Number] .
+		Comment = "/" "/" { "\u0000"…"\uffff"-"\n" } .
 		Punct = ";" | "+" | "-" | "*" | "/" | "^" | "%" | "\"" | "(" | ")" | "=" .
-		Whitespace = " " | "\r" | "\t" | "\n" .
+		Whitespace = " " | "\t" | "\n" | "\r" .
 		alpha = "a"…"z" | "A"…"Z" .
 		digit = "0"…"9" .
 	`))
 
 	parser, err := participle.Build(out,
 		participle.Lexer(lex),
-		participle.Elide("Whitespace"),
+		participle.Elide("Whitespace", "Comment"),
 	)
 	if err != nil {
 		return err

@@ -1,4 +1,6 @@
 package example;
+
+// base units are declared as simple identifiers, and derived units can be expressed in terms of the base units
 unit (
   M;
   S;
@@ -11,6 +13,7 @@ unit (
   BF;
 )
 
+// quantities are defined with a specified unit and a base type
 quantity (
   Scalar() float64;
   Length(M) float64;
@@ -23,6 +26,7 @@ quantity (
   Beaufort(BF) int;
 )
 
+// operations are explicitly defined for each quantity
 operation (
   Area = Length * Length;
   Length = Length % Length;

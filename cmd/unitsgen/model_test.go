@@ -13,6 +13,7 @@ unit (
 	km = 1000 * m;
 )
 
+// this is a comment
 quantity (
   Scalar() float64;
   Length(m) float64;
