@@ -268,6 +268,19 @@ func TestLength_Map(t *testing.T) {
 	}, ll)
 }
 
+func TestLength_Filter(t *testing.T) {
+	ll := example.LengthSlice{
+		example.NewLengthPtr(1),
+		example.NewLengthPtr(2),
+	}
+	ll = ll.Filter(func(l *example.Length) bool {
+		return l.Gt(example.NewLengthPtr(1.5))
+	})
+	require.Equal(t, example.LengthSlice{
+		example.NewLengthPtr(2),
+	}, ll)
+}
+
 func TestLength_Reduce(t *testing.T) {
 	ll := example.LengthSlice{
 		example.NewLengthPtr(2),

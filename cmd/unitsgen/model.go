@@ -62,6 +62,10 @@ func (q *Quantity) ReducerName() string {
 	return q.Name + "Reducer"
 }
 
+func (q *Quantity) FilterName() string {
+	return q.Name + "Filter"
+}
+
 func (q *Quantity) Constructor() string {
 	return "New" + q.Name
 }

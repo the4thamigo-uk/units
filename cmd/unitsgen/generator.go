@@ -48,6 +48,7 @@ var (
 type (
 {{range .Quantities}}{{.TypeName}}Slice []*{{.TypeName}}
 {{.MapperName}} func(q *{{.TypeName}}) *{{.TypeName}}
+{{.FilterName}} func(q *{{.TypeName}}) bool
 {{.ReducerName}} func(acc *{{.TypeName}}, q *{{.TypeName}}) *{{.TypeName}}
 {{end}}
 )
@@ -210,6 +211,16 @@ func (qq {{.SliceName}}) Map(f {{.MapperName}}) {{.SliceName}} {
 	out := make({{.SliceName}}, len(qq))
 	for i, q := range qq {
 		out[i] = f(q)
+	}
+	return out
+}
+
+func (qq {{.SliceName}}) Filter(f {{.FilterName}}) {{.SliceName}} {
+	out := make({{.SliceName}}, 0, len(qq))
+	for _, q := range qq {
+		if f(q) {
+			out = append(out, q)
+		}
 	}
 	return out
 }
