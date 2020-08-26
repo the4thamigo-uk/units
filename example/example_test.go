@@ -253,6 +253,32 @@ func TestBeaufort_ModLength(t *testing.T) {
 	require.Equal(t, r, q1.ModBeaufort(q2))
 }
 
+func TestLength_Map(t *testing.T) {
+	ll := example.LengthSlice{
+		example.NewLengthPtr(1),
+		example.NewLengthPtr(2),
+	}
+	s := example.NewScalarPtr(2)
+	ll = ll.Map(func(l *example.Length) *example.Length {
+		return l.MultiplyScalar(s)
+	})
+	require.Equal(t, example.LengthSlice{
+		example.NewLengthPtr(2),
+		example.NewLengthPtr(4),
+	}, ll)
+}
+
+func TestLength_Reduce(t *testing.T) {
+	ll := example.LengthSlice{
+		example.NewLengthPtr(2),
+		example.NewLengthPtr(3),
+	}
+	acc := ll.Reduce(example.NewLengthPtr(1), func(acc *example.Length, l *example.Length) *example.Length {
+		return acc.AddLength(l)
+	})
+	require.Equal(t, example.NewLengthPtr(6), acc)
+}
+
 func TestLength_Marshal(t *testing.T) {
 
 	type X struct {

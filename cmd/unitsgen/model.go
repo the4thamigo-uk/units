@@ -50,6 +50,18 @@ func (q *Quantity) TypeName() string {
 	return q.Name
 }
 
+func (q *Quantity) SliceName() string {
+	return q.Name + "Slice"
+}
+
+func (q *Quantity) MapperName() string {
+	return q.Name + "Mapper"
+}
+
+func (q *Quantity) ReducerName() string {
+	return q.Name + "Reducer"
+}
+
 func (q *Quantity) Constructor() string {
 	return "New" + q.Name
 }

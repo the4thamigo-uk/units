@@ -75,6 +75,40 @@ var (
 	_zero_value_Time      = NewTime(0)
 )
 
+// quantity slices
+type (
+	AreaSlice        []*Area
+	AreaMapper       func(q *Area) *Area
+	AreaReducer      func(acc *Area, q *Area) *Area
+	BeaufortSlice    []*Beaufort
+	BeaufortMapper   func(q *Beaufort) *Beaufort
+	BeaufortReducer  func(acc *Beaufort, q *Beaufort) *Beaufort
+	DistanceSlice    []*Distance
+	DistanceMapper   func(q *Distance) *Distance
+	DistanceReducer  func(acc *Distance, q *Distance) *Distance
+	DurationSlice    []*Duration
+	DurationMapper   func(q *Duration) *Duration
+	DurationReducer  func(acc *Duration, q *Duration) *Duration
+	FrequencySlice   []*Frequency
+	FrequencyMapper  func(q *Frequency) *Frequency
+	FrequencyReducer func(acc *Frequency, q *Frequency) *Frequency
+	LengthSlice      []*Length
+	LengthMapper     func(q *Length) *Length
+	LengthReducer    func(acc *Length, q *Length) *Length
+	RPMSlice         []*RPM
+	RPMMapper        func(q *RPM) *RPM
+	RPMReducer       func(acc *RPM, q *RPM) *RPM
+	ScalarSlice      []*Scalar
+	ScalarMapper     func(q *Scalar) *Scalar
+	ScalarReducer    func(acc *Scalar, q *Scalar) *Scalar
+	SpeedSlice       []*Speed
+	SpeedMapper      func(q *Speed) *Speed
+	SpeedReducer     func(acc *Speed, q *Speed) *Speed
+	TimeSlice        []*Time
+	TimeMapper       func(q *Time) *Time
+	TimeReducer      func(acc *Time, q *Time) *Time
+)
+
 // declared conversions between quantities
 var (
 	_convertFrequencyToRPM = units.MustConvert(units.NewConverter(_base_unit_Frequency, _base_unit_RPM))
@@ -229,6 +263,21 @@ func (q *Area) Max(q2 *Area) *Area {
 	return q2
 }
 
+func (qq AreaSlice) Map(f AreaMapper) AreaSlice {
+	out := make(AreaSlice, len(qq))
+	for i, q := range qq {
+		out[i] = f(q)
+	}
+	return out
+}
+
+func (qq AreaSlice) Reduce(acc *Area, f AreaReducer) *Area {
+	for _, q := range qq {
+		acc = f(acc, q)
+	}
+	return acc
+}
+
 func NewBeaufort(val int) Beaufort {
 	return Beaufort(val)
 }
@@ -375,6 +424,21 @@ func (q *Beaufort) Max(q2 *Beaufort) *Beaufort {
 		return q
 	}
 	return q2
+}
+
+func (qq BeaufortSlice) Map(f BeaufortMapper) BeaufortSlice {
+	out := make(BeaufortSlice, len(qq))
+	for i, q := range qq {
+		out[i] = f(q)
+	}
+	return out
+}
+
+func (qq BeaufortSlice) Reduce(acc *Beaufort, f BeaufortReducer) *Beaufort {
+	for _, q := range qq {
+		acc = f(acc, q)
+	}
+	return acc
 }
 
 func (q *Beaufort) ModBeaufort(q2 *Beaufort) *Beaufort {
@@ -537,6 +601,21 @@ func (q *Distance) Max(q2 *Distance) *Distance {
 	return q2
 }
 
+func (qq DistanceSlice) Map(f DistanceMapper) DistanceSlice {
+	out := make(DistanceSlice, len(qq))
+	for i, q := range qq {
+		out[i] = f(q)
+	}
+	return out
+}
+
+func (qq DistanceSlice) Reduce(acc *Distance, f DistanceReducer) *Distance {
+	for _, q := range qq {
+		acc = f(acc, q)
+	}
+	return acc
+}
+
 func (q *Distance) DivideDuration(q2 *Duration) *Speed {
 	if q == nil || q2 == nil {
 		return nil
@@ -697,6 +776,21 @@ func (q *Duration) Max(q2 *Duration) *Duration {
 	return q2
 }
 
+func (qq DurationSlice) Map(f DurationMapper) DurationSlice {
+	out := make(DurationSlice, len(qq))
+	for i, q := range qq {
+		out[i] = f(q)
+	}
+	return out
+}
+
+func (qq DurationSlice) Reduce(acc *Duration, f DurationReducer) *Duration {
+	for _, q := range qq {
+		acc = f(acc, q)
+	}
+	return acc
+}
+
 func NewFrequency(val float64) Frequency {
 	return Frequency(val)
 }
@@ -843,6 +937,21 @@ func (q *Frequency) Max(q2 *Frequency) *Frequency {
 		return q
 	}
 	return q2
+}
+
+func (qq FrequencySlice) Map(f FrequencyMapper) FrequencySlice {
+	out := make(FrequencySlice, len(qq))
+	for i, q := range qq {
+		out[i] = f(q)
+	}
+	return out
+}
+
+func (qq FrequencySlice) Reduce(acc *Frequency, f FrequencyReducer) *Frequency {
+	for _, q := range qq {
+		acc = f(acc, q)
+	}
+	return acc
 }
 
 func (q *Frequency) ToRPM() *RPM {
@@ -998,6 +1107,21 @@ func (q *Length) Max(q2 *Length) *Length {
 		return q
 	}
 	return q2
+}
+
+func (qq LengthSlice) Map(f LengthMapper) LengthSlice {
+	out := make(LengthSlice, len(qq))
+	for i, q := range qq {
+		out[i] = f(q)
+	}
+	return out
+}
+
+func (qq LengthSlice) Reduce(acc *Length, f LengthReducer) *Length {
+	for _, q := range qq {
+		acc = f(acc, q)
+	}
+	return acc
 }
 
 func (q *Length) MultiplyLength(q2 *Length) *Area {
@@ -1204,6 +1328,21 @@ func (q *RPM) Max(q2 *RPM) *RPM {
 	return q2
 }
 
+func (qq RPMSlice) Map(f RPMMapper) RPMSlice {
+	out := make(RPMSlice, len(qq))
+	for i, q := range qq {
+		out[i] = f(q)
+	}
+	return out
+}
+
+func (qq RPMSlice) Reduce(acc *RPM, f RPMReducer) *RPM {
+	for _, q := range qq {
+		acc = f(acc, q)
+	}
+	return acc
+}
+
 func (q *RPM) ToFrequency() *Frequency {
 	if q == nil {
 		return nil
@@ -1357,6 +1496,21 @@ func (q *Scalar) Max(q2 *Scalar) *Scalar {
 		return q
 	}
 	return q2
+}
+
+func (qq ScalarSlice) Map(f ScalarMapper) ScalarSlice {
+	out := make(ScalarSlice, len(qq))
+	for i, q := range qq {
+		out[i] = f(q)
+	}
+	return out
+}
+
+func (qq ScalarSlice) Reduce(acc *Scalar, f ScalarReducer) *Scalar {
+	for _, q := range qq {
+		acc = f(acc, q)
+	}
+	return acc
 }
 
 func (q *Scalar) DivideTime(q2 *Time) *Frequency {
@@ -1519,6 +1673,21 @@ func (q *Speed) Max(q2 *Speed) *Speed {
 	return q2
 }
 
+func (qq SpeedSlice) Map(f SpeedMapper) SpeedSlice {
+	out := make(SpeedSlice, len(qq))
+	for i, q := range qq {
+		out[i] = f(q)
+	}
+	return out
+}
+
+func (qq SpeedSlice) Reduce(acc *Speed, f SpeedReducer) *Speed {
+	for _, q := range qq {
+		acc = f(acc, q)
+	}
+	return acc
+}
+
 func (q *Speed) MultiplyDuration(q2 *Duration) *Distance {
 	if q == nil || q2 == nil {
 		return nil
@@ -1673,6 +1842,21 @@ func (q *Time) Max(q2 *Time) *Time {
 		return q
 	}
 	return q2
+}
+
+func (qq TimeSlice) Map(f TimeMapper) TimeSlice {
+	out := make(TimeSlice, len(qq))
+	for i, q := range qq {
+		out[i] = f(q)
+	}
+	return out
+}
+
+func (qq TimeSlice) Reduce(acc *Time, f TimeReducer) *Time {
+	for _, q := range qq {
+		acc = f(acc, q)
+	}
+	return acc
 }
 
 func (q *Time) MultiplyScalar(q2 *Scalar) *Time {

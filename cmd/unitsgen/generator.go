@@ -44,6 +44,13 @@ var (
 {{end}}
 )
 
+// quantity slices
+type (
+{{range .Quantities}}{{.TypeName}}Slice []*{{.TypeName}}
+{{.MapperName}} func(q *{{.TypeName}}) *{{.TypeName}}
+{{.ReducerName}} func(acc *{{.TypeName}}, q *{{.TypeName}}) *{{.TypeName}}
+{{end}}
+)
 // declared conversions between quantities
 var (
 {{range $cv := .Conversions}}{{$cv.ConverterName}} = units.MustConvert(units.NewConverter({{$cv.Left.BaseUnitName}},{{$cv.Right.BaseUnitName}}))
@@ -197,6 +204,21 @@ func (q *{{.TypeName}}) Max(q2 *{{.TypeName}}) *{{.TypeName}} {
 		return q
 	}
 	return q2
+}
+
+func (qq {{.SliceName}}) Map(f {{.MapperName}}) {{.SliceName}} {
+	out := make({{.SliceName}}, len(qq))
+	for i, q := range qq {
+		out[i] = f(q)
+	}
+	return out
+}
+
+func (qq {{.SliceName}}) Reduce(acc *{{.TypeName}}, f {{.ReducerName}}) *{{.TypeName}} {
+	for _, q := range qq {
+		acc = f(acc, q)
+	}
+	return acc
 }
 
 {{range $op := .Operations}}
