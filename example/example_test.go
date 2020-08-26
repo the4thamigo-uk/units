@@ -286,9 +286,7 @@ func TestLength_Reduce(t *testing.T) {
 		example.NewLengthPtr(2),
 		example.NewLengthPtr(3),
 	}
-	acc := ll.Reduce(example.NewLengthPtr(1), func(acc *example.Length, l *example.Length) *example.Length {
-		return acc.AddLength(l)
-	})
+	acc := ll.Reduce(example.NewLengthPtr(1), (*example.Length).AddLength)
 	require.Equal(t, example.NewLengthPtr(6), acc)
 }
 
