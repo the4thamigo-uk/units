@@ -47,10 +47,10 @@ type (
 	OperationDefinition struct {
 		Pos      lexer.Position
 		Tok      lexer.Token
-		Result   string `@Ident "="`
 		Left     string `@Ident`
 		Operator string `@("*" | "/" | "+" | "-" | "%")`
 		Right    string `@Ident`
+		Result   string `"-" ">" @Ident`
 	}
 
 	ConversionDefinition struct {

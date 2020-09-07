@@ -28,12 +28,12 @@ quantity (
 )
 
 operation (
-  Area = Length * Length;
-  Length = Length * Scalar;
-  Time = Time * Scalar;
-  Speed = Distance / Duration;
-  Distance = Speed * Duration;
-  Frequency = Scalar / Time;
+  Length * Length -> Area;
+  Length * Scalar -> Length;
+  Time * Scalar -> Time;
+  Distance / Duration -> Speed;
+  Speed * Duration -> Distance;
+  Scalar / Time -> Frequency;
 )
 
 conversion (

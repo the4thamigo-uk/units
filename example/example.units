@@ -30,17 +30,17 @@ quantity (
 
 // operations are explicitly defined for each quantity
 operation (
-  Area = Length * Length;
-  Length = Length % Length;
-  Beaufort = Beaufort % Beaufort;
-  Scalar = Length / Length;
-  Length = Length + Length;
-  Length = Length - Length;
-  Length = Length * Scalar;
-  Time = Time * Scalar;
-  Speed = Distance / Duration;
-  Distance = Speed * Duration;
-  Frequency = Scalar / Time;
+  Length * Length -> Area;
+  Length % Length -> Length;
+  Beaufort % Beaufort -> Beaufort;
+  Length / Length -> Scalar;
+  Length + Length -> Length;
+  Length - Length -> Length;
+  Length * Scalar -> Length;
+  Time * Scalar -> Time;
+  Distance / Duration -> Speed;
+  Speed * Duration -> Distance;
+  Scalar / Time -> Frequency;
 )
 
 conversion (

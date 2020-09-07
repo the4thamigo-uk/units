@@ -58,7 +58,7 @@ The `operations` section defines the the operations that are allowed to perform 
 is not obvious to understand, here is an example of the operation to generate a `Speed`, from a `Length` and a `Time` :
 
 ```
-Speed = Length / Time;
+Length / Time -> Speed;
 ```
 
 In terms of the golang code, this means that The `Length` quantity, will be generated with a method that looks something like this :
